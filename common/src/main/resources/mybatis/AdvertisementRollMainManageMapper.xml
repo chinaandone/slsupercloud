@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.AdvertisementRollMainManageDao">
+
+
+    <resultMap id="advertisementRollMainResult" type="AdvertisementRollMain">
+        <result property="advertisementMainId" column="c_advertisement_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="advertisementId" column="c_advertisement_id"/>
+        <result property="pictureId" column="c_pictrue_id"/>
+        <result property="timeEnd" column="time_end"/>
+        <result property="timeStart" column="time_start"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updated" column="updated"/>
+        <result property="orgName" column="org_name"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_advertisementRollMainList" resultMap="advertisementRollMainResult">
+        SELECT
+        <if test="orgId == null">
+            a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+        </if>
+        <if test="orgId != null">
+            a.c_advertisement_main_id, a.c_roll_main_id, a.ad_client_id, a.ad_org_id, a.c_advertisement_id,
+            a.title, a.created, a.order_seq, a.time_start, a.time_end, o.name as org_name,a.active
+        </if>
+        from c_advertisement_roll_main a
+        LEFT JOIN ad_org o ON o.ad_org_id = a.ad_org_id
+        where a.active = 1
+        <if test="clientId != null">
+            and a.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and a.ad_org_id = #{orgId}
+        </if>
+        <if test="rollMainId != null">
+            and a.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="title != null">
+            and a.title = #{title}
+        </if>
+        <if test="created != null">
+            and a.created = #{created}
+        </if>
+        <if test="advertisementId != null">
+            and a.c_advertisement_id = #{advertisementId}
+        </if>
+        <if test="orgId == null">
+            GROUP BY a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+        </if>
+        ORDER BY a.created DESC
+        <!--order by a.c_advertisement_main_id desc -->
+        limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_advertisementRollMainList" resultType="int">
+        SELECT count(1) FROM (
+            SELECT
+            <if test="orgId == null">
+                a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+            </if>
+            <if test="orgId != null">
+                a.c_advertisement_main_id, a.c_roll_main_id, a.ad_client_id, a.ad_org_id, a.c_advertisement_id,
+                a.title, a.created, a.order_seq, a.time_start, a.time_end, o.name as org_name,a.active
+            </if>
+            from c_advertisement_roll_main a
+            LEFT JOIN ad_org o ON o.ad_org_id = a.ad_org_id
+            where a.active = 1
+            <if test="clientId != null">
+                and a.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and a.ad_org_id = #{orgId}
+            </if>
+            <if test="rollMainId != null">
+                and a.c_roll_main_id = #{rollMainId}
+            </if>
+            <if test="title != null">
+                and a.title = #{title}
+            </if>
+            <if test="created != null">
+                and a.created = #{created}
+            </if>
+            <if test="advertisementId != null">
+                and a.c_advertisement_id = #{advertisementId}
+            </if>
+            <if test="orgId == null">
+                GROUP BY a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+            </if>
+        )u
+    </select>
+
+    <!-- 查询某店铺下已推总数 -->
+    <select id="countExist" resultType="int">
+        SELECT count(1)
+        from c_advertisement_roll_main a
+        where a.active = 1
+        <if test="clientId != null">
+            and a.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and a.ad_org_id = #{orgId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="advertisementRollMainResult">
+        select a.* from c_advertisement_roll_main a where a.active = 1
+        <if test="advertisementMainId != null">
+            AND a.c_advertisement_main_id = #{advertisementMainId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="advertisementRollMainResult">
+        select
+        <if test="orgId == null">
+            a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+        </if>
+        <if test="orgId != null">
+            a.c_advertisement_main_id, a.c_roll_main_id, a.ad_client_id, a.ad_org_id, a.c_advertisement_id,
+            a.title, a.created, a.order_seq, a.time_start, a.time_end, o.name as org_name,a.active
+        </if>
+        from c_advertisement_roll_main a
+        LEFT JOIN ad_org o ON o.ad_org_id = a.ad_org_id
+        where a.active = 1
+        <if test="clientId != null">
+            and a.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and a.ad_org_id = #{orgId}
+        </if>
+        <if test="rollMainId != null">
+            and a.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="title != null">
+            and a.title = #{title}
+        </if>
+        <if test="created != null">
+            and a.created = #{created}
+        </if>
+        <if test="advertisementId != null">
+            and a.c_advertisement_id = #{advertisementId}
+        </if>
+        <if test="orgId == null">
+            GROUP BY a.title, a.created, a.time_end, a.time_start, a.c_advertisement_id
+        </if>
+        ORDER BY a.created DESC
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_advertisement_roll_main(
+        c_advertisement_main_id,
+        c_advertisement_id,
+        c_roll_main_id,
+        c_pictrue_id,
+        order_seq,
+        ad_client_id,
+        ad_org_id,
+        title,
+        time_start,
+        time_end,
+        created_by,
+        created
+        ) values (
+        #{advertisementMainId},
+        #{advertisementId},
+        #{rollMainId},
+        #{pictureId},
+        #{orderSeq},
+        #{clientId},
+        #{orgId},
+        #{title},
+        #{timeStart},
+        #{timeEnd},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+
+    <!-- 修改，暂时不提供修改功能 -->
+    <!--update id="updateEntity">
+        update c_advertisement_roll_main
+        set
+        <if test="orderSeq != null">
+            order_seq = #{orderSeq},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_advertisement_main_id = #{advertisementMainId}
+    </update-->
+
+    <!-- 删除,根据广告名,推送创建时间等批量删除 -->
+    <delete id="removeEntity">
+        delete from c_advertisement_roll_main
+        where title = #{title}
+        AND created = #{created}
+        <!--AND time_end = #{timeEnd}
+        AND time_start = #{timeStart}
+        AND order_seq = #{orderSeq}-->
+        <if test="advertisementMainId != null">
+            AND c_advertisement_main_id = #{advertisementMainId}
+        </if>
+        <if test="clientId != null">
+            AND ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ad_org_id = #{orgId}
+        </if>
+    </delete>
+    
+</mapper>

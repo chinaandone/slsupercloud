@@ -1,0 +1,30 @@
+{
+  "code":200,
+  "msg":"左边菜单接口",
+  "data":[
+    {
+      "name":"控制中心",
+      "class":"index",
+      "url":"index",
+      "active":"active",
+      "child":[],
+      "icon":"dashboard"
+    },
+    {
+      "name":"本店活动",
+      "class":"store.activity",
+      "url":"store.activity()",
+      "active":"active",
+      "child":[],
+      "icon":"video-camera"
+    },
+    {
+      "name":"本店视频",
+      "class":"store.video",
+      "url":"store.video()",
+      "active":"active",
+      "child":[],
+      "icon":"film"
+    }
+  ]
+}

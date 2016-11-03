@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.DetailTextManageDao">
+
+    <resultMap id="detailTextResult" type="DetailText">
+        <result property="detailTextId" column="c_detail_text_id"/>
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="active" column="active"/>
+        <collection property="advertisementList" column="ad_org_id" select="com.clever.common.repository.AdvertisementManageDao.getEntities"/>
+        <collection property="rollDetailList" column="c_roll_main_id" select="com.clever.common.repository.RollDetailManageDao.getEntities"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_detailTextList" resultMap="detailTextResult">
+        select d.* from c_detail_text d where d.active = 1
+        <if test="orgId != null">
+            and d.ad_org_id = #{orgId}
+        </if>
+        <if test="active != null">
+            and d.active = #{active}
+        </if>
+        order by d.c_detail_text_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_detailTextList" resultType="int">
+        select count(1) from c_detail_text d where d.active = 1
+        <if test="orgId != null">
+            and d.ad_org_id = #{orgId}
+        </if>
+        <if test="active != null">
+            and d.active = #{active}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="detailTextResult">
+        select d.* from c_detail_text d where d.active = 1
+        <if test="orgId != null">
+            AND d.ad_org_id = #{orgId}
+        </if>
+        <if test="rollMainId != null">
+          AND d.c_roll_main_id = #{rollMainId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="detailTextResult">
+        select d.* from c_detail_text d where d.active = 1
+        <if test="rollMainId != null">
+            AND d.c_roll_main_id = #{rollMainId}
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_detail_text(
+        c_detail_text_id,
+        c_roll_main_id,
+        ad_client_id,
+        ad_org_id,
+        title,
+        description,
+        created_by,
+        created
+        ) values (
+        #{detailTextId},
+        #{rollMainId},
+        #{clientId},
+        #{orgId},
+        #{title},
+        #{description},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update c_detail_text
+        set
+        <if test="title != null">
+            title = #{title},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="rollMainId != null">
+            c_roll_main_id = #{rollMainId},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_detail_text_id = #{detailTextId}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from c_detail_text
+        where c_roll_main_id = #{rollMainId}
+    </delete>
+    
+</mapper>

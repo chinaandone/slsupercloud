@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MonitorManageDao">
+
+    <resultMap id="computerInfoResult" type="ComputerInfo">
+        <result property="id" column="c_computer_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="boardNo" column="board_no"/>
+    </resultMap>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="computerInfoResult">
+        select c.* from c_computer c where c.ad_org_id=#{orgId}  order by c.created desc
+    </select>
+
+
+</mapper>

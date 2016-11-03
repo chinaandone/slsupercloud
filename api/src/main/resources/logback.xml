@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true"  scanPeriod="1 minutes" debug="false">
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.out</Target>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%-5level] [%logger.%M:%L] - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--<fileNamePattern>e:download_home/var/log/api/wt_api.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+			<fileNamePattern>/var/log/api/wt_api.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>365</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%logger.%M:%L] |%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="info">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="FILE" />
+	</root>
+	
+	<logger name="com.wt" level="INFO" />
+	<logger name="com.ibatis" level="INFO" />
+	<logger name="org.springframework" level="INFO" />
+	<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate" level="INFO" />
+	<logger name="org.apache.commons" level="INFO" />
+	<logger name="catalia" level="INFO" />
+	<logger name="org.apache" level="INFO" />
+	<logger name="com.ibatis.common.jdbc.SimpleDataSource" level="INFO" />
+	<logger name="java.sql.ResultSet" level="DEBUG" />
+	<logger name="com.ibatis.common.jdbc.ScriptRunner" level="DEBUG" />
+	<logger name="java.sql.Connection" level="DEBUG" />
+	<logger name="java.sql.PreparedStatement" level="DEBUG" />
+    
+</configuration>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.RollDetailManageDao">
+
+    <resultMap id="pictrueResult" type="Pictrue">
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <result property="original" column="original"/>
+        <result property="kind" column="kind"/>
+    </resultMap>
+
+    <resultMap id="rollDetailResult" type="RollDetail">
+        <result property="rollDetailId" column="c_roll_detail_id"/>
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="detailTextId" column="c_detail_text_id"/>
+        <result property="rollTime" column="rollTime"/>
+        <result property="active" column="active"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="picOrinName" column="original"/>
+        <!--<association property="pictrue" javaType="Pictrue" resultMap="pictrueResult"/>-->
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_rollDetailList" resultMap="rollDetailResult">
+        select d.* from c_roll_detail d where d.active = 1
+        <if test="orgId != null">
+            and d.ad_org_id = #{orgId}
+        </if>
+        order by d.c_roll_detail_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_rollDetailList" resultType="int">
+        select count(1) from c_roll_detail d where d.active = 1
+        <if test="orgId != null">
+            and d.ad_org_id = #{orgId}
+        </if>
+        <if test="active != null">
+            and d.active = #{active}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="rollDetailResult">
+        select d.c_roll_detail_id, d.c_roll_main_id, d.c_pictrue_id, d.order_seq, d.c_detail_text_id, d.rollTime, d.active,
+        p.pictrue_path, p.qiniu_path,p.original
+        from c_roll_detail d
+        LEFT JOIN c_pictrue p
+        ON d.c_pictrue_id = p.c_pictrue_id
+        where d.active = 1
+        <if test="value != null">
+            and d.c_roll_main_id = #{value}
+        </if>
+        order by d.order_seq desc limit 15 offset 0;
+    </select>
+
+    <!-- 查询list -->
+    <select id="findList" resultMap="rollDetailResult">
+        select d.*
+        from c_roll_detail d
+        where d.active = 1
+        <if test="rollMainId != null">
+            and d.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="pictrueId != null">
+            and d.c_pictrue_id = #{pictrueId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="rollDetailResult">
+        select d.* from c_roll_detail d where d.active = 1
+        <if test="rollMainId != null">
+          AND d.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="rollDetailId != null">
+            AND d.c_roll_detail_id = #{rollDetailId}
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_roll_detail(
+        c_roll_detail_id,
+        c_roll_main_id,
+        ad_client_id,
+        ad_org_id,
+        c_pictrue_id,
+        order_seq,
+        c_detail_text_id,
+        rollTime,
+        created_by,
+        created
+        ) values (
+        #{rollDetailId},
+        #{rollMainId},
+        #{clientId},
+        #{orgId},
+        #{pictrueId},
+        #{orderSeq},
+        #{detailTextId},
+        #{rollTime},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update c_roll_detail
+        set
+        <if test="orderSeq != null">
+            order_seq = #{orderSeq},
+        </if>
+        <if test="rollTime != null">
+            rollTime = #{rollTime},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_pictrue_id = #{pictrueId}
+        AND c_roll_main_id = #{rollMainId}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from c_roll_detail
+        where
+        c_roll_main_id = #{rollMainId}
+        <if test="rollDetailId != null">
+          AND c_roll_detail_id = #{rollDetailId}
+        </if>
+    </delete>
+    
+</mapper>

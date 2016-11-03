@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.AdSequenceManageDao">
+
+    <resultMap id="adSequenceResult" type="AdSequence">
+        <result property="adSequenceId" column="ad_sequence_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="vformat" column="vformat"/>
+        <result property="isautosequence" column="isautosequence"/>
+        <result property="incrementno" column="incrementno"/>
+        <result property="startno" column="startno"/>
+        <result property="currentnext" column="currentnext"/>
+        <result property="currentnextsys" column="currentnextsys"/>
+        <result property="isaudited" column="isaudited"/>
+        <result property="istableid" column="istableid"/>
+        <result property="prefix" column="prefix"/>
+        <result property="suffix" column="suffix"/>
+        <result property="startnewyear" column="startnewyear"/>
+        <result property="datecolumn" column="datecolumn"/>
+        <result property="decimalpattern" column="decimalpattern"/>
+    </resultMap>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="adSequenceResult">
+        select a.* from ad_sequence a where a.name = #{name}
+
+    </select>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  ad_sequence
+        set
+        currentnextsys = #{currentnextsys}
+        where
+        name = #{name}
+    </update>
+    
+</mapper>

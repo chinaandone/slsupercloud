@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MarketManageDao">
+
+    <resultMap id="marketResult" type="com.clever.common.client.view.MarketView">
+        <result property="marketId" column="c_market_id"/>
+        <result property="company" column="company"/>
+        <result property="brand" column="brand"/>
+        <result property="videoName" column="video_name"/>
+        <result property="mediaForm" column="media_form"/>
+        <result property="adLength" column="ad_length"/>
+        <result property="playFreq" column="play_freq"/>
+        <result property="timeStartDate" column="time_start"/>
+        <result property="timeEndDate" column="time_end"/>
+        <result property="circle" column="circle"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="clientName" column="client_name"/>
+        <result property="orgName" column="org_name"/>
+        <result property="deviceCount" column="device_num"/>
+        <collection property="monitors" column="c_market_id" select="com.clever.common.repository.MarketManageDao.getMarketMonitorEntities"/>
+    </resultMap>
+
+    <resultMap id="marketMonitorResult" type="com.clever.common.domain.MarketMonitor">
+        <result property="marketId" column="c_market_id"/>
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="picOrinName" column="original"/>
+    </resultMap>
+
+    <!-- 分页查询本店活动或木爷资源活动列表 -->
+    <select id="list_marketList" resultMap="marketResult">
+          select r.*,o.name as org_name,c.name as client_name
+            from c_market r
+            LEFT JOIN ad_client c ON r.ad_client_id = c.ad_client_id
+            LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+            where r.active = 1
+            <if test="company != null">
+                AND r.company = #{company}
+            </if>
+            order by r.c_market_id desc
+            <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+                limit #{rowNum} offset #{skipNum};
+            </if>
+            <if test="iDisplayAll != null and iDisplayAll == '1'.toString()">
+--                 不分页查询时，只查出前5W条数据
+                limit 50000 offset 0;
+            </if>
+    </select>
+
+    <!-- 分页查询本店活动或木爷资源活动列表总数 -->
+    <select id="count_marketList" resultType="int">
+        select count(1)
+        from c_market r
+        LEFT JOIN ad_client c ON r.ad_client_id = c.ad_client_id
+        LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+        where r.active = 1
+        <if test="company != null">
+            AND r.company = #{company}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="marketResult">
+        select r.* from c_market r where r.active = 1
+        <if test="marketId != null">
+          AND r.c_market_id = #{marketId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="marketResult">
+        select r.*,o.name as org_name,c.name as client_name
+        from c_market r
+        LEFT JOIN ad_client c ON r.ad_client_id = c.ad_client_id
+        LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+        where r.active = 1
+        <if test="company != null">
+            AND r.company = #{company}
+        </if>
+        order by r.c_market_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_market(
+        c_market_id,
+        ad_client_id,
+        ad_org_id,
+        company,
+        brand,
+        video_name,
+        circle,
+        media_form,
+        ad_length,
+        play_freq,
+        time_start,
+        time_end,
+        device_num,
+        created_by,
+        created
+        ) values (
+        #{marketId},
+        #{clientId},
+        #{orgId},
+        #{company},
+        #{brand},
+        #{videoName},
+        #{circle},
+        #{mediaForm},
+        #{adLength},
+        #{playFreq},
+        #{timeStart},
+        #{timeEnd},
+        (
+            select count(1)
+            from r_table r
+            where r.ad_org_id = #{orgId}
+        ),
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update c_market
+        set
+        <if test="company != null">
+            company = #{company},
+        </if>
+        <if test="brand != null">
+            brand = #{brand},
+        </if>
+        <if test="videoName != null">
+            video_name = #{videoName},
+        </if>
+        <if test="circle != null">
+            circle = #{circle},
+        </if>
+        <if test="mediaForm != null">
+            media_form = #{mediaForm},
+        </if>
+        <if test="adLength != null">
+            ad_length = #{adLength},
+        </if>
+        <if test="playFreq != null">
+            play_freq = #{playFreq},
+        </if>
+        <if test="timeStart != null">
+            time_start = #{timeStart},
+        </if>
+        <if test="timeEnd != null">
+            time_end = #{timeEnd},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_market_id = #{marketId}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from c_market
+        where c_market_id = #{marketId}
+    </delete>
+
+<!--  MarketMonitor操作  *************************************************      -->
+    <!-- 查询MarketMonitor list -->
+    <select id="getMarketMonitorEntities" resultMap="marketMonitorResult">
+        select r.*,p.pictrue_path, p.qiniu_path,p.original
+        from c_market_monitor r
+        LEFT JOIN c_pictrue p ON p.c_pictrue_id = r.c_pictrue_id
+        <where>
+            <if test="value != null">
+                AND r.c_market_id = #{value}
+            </if>
+        </where>
+        ORDER BY r.c_pictrue_id ASC
+    </select>
+
+    <!-- 新增MarketMonitor-->
+    <insert id="addMarketMonitorEntity">
+        insert into c_market_monitor(
+        c_market_id,
+        c_pictrue_id
+        ) values (
+        #{marketId},
+        #{pictrueId}
+        )
+    </insert>
+
+    <!-- 根据marketId删除MarketMonitor -->
+    <delete id="deleteMarketMonitorEntityByMarket">
+        delete from c_market_monitor
+        where c_market_id = #{marketId}
+    </delete>
+</mapper>

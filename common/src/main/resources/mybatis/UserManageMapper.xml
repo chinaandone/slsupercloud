@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.UserManageDao">
+
+    <resultMap id="userResult" type="User">
+    <result property="userId" column="ad_user_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="partnerId" column="c_bpartner_id"/>
+    <result property="loginId" column="login_id"/>
+    <result property="username" column="user_name"/>
+    <result property="password" column="password"/>
+    <result property="phone" column="phone"/>
+    <result property="mobile" column="mobile"/>
+    <result property="birthday" column="birthday"/>
+    <result property="email" column="email"/>
+    <result property="roleType" column="role_type"/>
+    <result property="clientName" column="client_name"/>
+    <result property="orgName" column="org_name"/>
+    <result property="created" column="created"/>
+    <result property="createdBy" column="created_by"/>
+    <result property="updated" column="updated"/>
+    <result property="updatedBy" column="updated_by"/>
+    <result property="active" column="active"/>
+</resultMap>
+
+    <!-- 根据displayAll的值决定分页/不分页查询，只能查询品牌或店铺权限 -->
+    <select id="list_userList" resultMap="userResult">
+        select u.ad_user_id, u.ad_client_id, u.ad_org_id, u.c_bpartner_id,
+        u.login_id, u.name as user_name,  u.phone, u.mobile,
+        u.birthday, u.email, u.role_type,
+        u.created,u.created_by,u.updated,u.updated_by,u.active,
+        cl.name as client_name, o.name as org_name
+        from ad_user u
+        LEFT JOIN ad_org o ON o.ad_org_id = u.ad_org_id
+        LEFT JOIN ad_client cl ON cl.ad_client_id = u.ad_client_id
+        where 1 = 1
+        <if test="orgId != null">
+            and u.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            and u.ad_client_id = #{clientId}
+        </if>
+        <if test="roleType != null">
+            and u.role_type = #{roleType}
+        </if>
+        <if test="isJF != null and isJF == '1'.toString()">
+            and (u.role_type = 'CLIENTUSER' OR u.role_type = 'BRANDUSER')
+        </if>
+        order by u.ad_user_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+            limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数，只能查询品牌或店铺权限 -->
+    <select id="count_userList" resultType="int">
+        select count(1)
+        from ad_user u
+        LEFT JOIN ad_org o ON o.ad_org_id = u.ad_org_id
+        LEFT JOIN ad_client cl ON cl.ad_client_id = u.ad_client_id
+        where 1 = 1
+        <if test="orgId != null">
+            and u.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            and u.ad_client_id = #{clientId}
+        </if>
+        <if test="roleType != null">
+            and u.role_type = #{roleType}
+        </if>
+        <if test="loginId != null">
+            AND u.login_id = #{loginId}
+        </if>
+        <if test="isJF != null and isJF == '1'.toString()">
+            and (u.role_type = 'CLIENTUSER' OR u.role_type = 'BRANDUSER')
+        </if>
+    </select>
+
+    <!-- 查询单个,用于登录 -->
+    <select id="getEntity" resultMap="userResult">
+        select u.ad_user_id, u.ad_client_id, u.ad_org_id, u.c_bpartner_id,
+               u.login_id, u.name as user_name, u.password, u.phone, u.mobile,
+               u.birthday, u.email, u.role_type,
+               u.created,u.created_by,u.updated,u.updated_by,u.active,
+               cl.name as client_name, o.name as org_name
+        from ad_user u
+        LEFT JOIN ad_org o ON o.ad_org_id = u.ad_org_id
+        LEFT JOIN ad_client cl ON cl.ad_client_id = u.ad_client_id
+        <where>
+            <if test="loginId != null and password != null">
+                u.login_id = #{loginId} AND u.password = #{password}
+            </if>
+            <if test="userId != null">
+                AND u.ad_user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into ad_user(
+        ad_client_id,
+        ad_org_id,
+        ad_user_id,
+        c_bpartner_id,
+        login_id,
+        name,
+        password,
+        phone,
+        mobile,
+        birthday,
+        email,
+        role_type,
+        created_by,
+        created
+        ) values (
+        #{clientId},
+        #{orgId},
+        #{userId},
+        #{partnerId},
+        #{loginId},
+        #{username},
+        #{password},
+        #{phone},
+        #{mobile},
+        #{birthday},
+        #{email},
+        #{roleType},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update ad_user
+        set
+        <if test="partnerId != null">
+            c_bpartner_id = #{partnerId},
+        </if>
+        <if test="loginId != null">
+            login_id = #{loginId},
+        </if>
+        <if test="username != null">
+            name = #{username},
+        </if>
+        <if test="password != null">
+            password = #{password},
+        </if>
+        <if test="phone != null">
+            phone = #{phone},
+        </if>
+        <if test="mobile != null">
+            mobile = #{mobile},
+        </if>
+        <if test="birthday != null">
+            birthday = #{birthday},
+        </if>
+        <if test="email != null">
+            email = #{email},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        ad_user_id = #{userId}
+    </update>
+</mapper>

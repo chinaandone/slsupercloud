@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.PictrueManageDao">
+
+    <resultMap id="pictrueResult" type="Pictrue">
+    <result property="pictrueId" column="c_pictrue_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="pictruePath" column="pictrue_path"/>
+    <result property="qiniuPath" column="qiniu_path"/>
+    <result property="year" column="year"/>
+    <result property="month" column="month"/>
+    <result property="day" column="day"/>
+    <result property="original" column="original"/>
+    <result property="kind" column="kind"/>
+    <result property="isFile" column="isFile"/>
+    <result property="type" column="type"/>
+    <result property="folderName" column="folderName"/>
+</resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_pictrueList" resultMap="pictrueResult">
+        <if test="gourpType == 1">
+            SELECT p.kind, 0 as isFile FROM c_pictrue p where p.active = 1
+            <if test="type == 0">
+                <if test="orgId != null">
+                    AND p.ad_org_id = #{orgId}
+                </if>
+                AND p.type = #{type}
+            </if>
+            <if test="type == 1">
+                AND p.type = #{type}
+            </if>
+            GROUP BY p.kind ORDER BY p.kind DESC
+        </if>
+        <if test="gourpType == 2">
+            select p.*, 1 as isFile from c_pictrue p where p.active = 1
+            <if test="type == 0">
+                <if test="orgId != null">
+                    AND p.ad_org_id = #{orgId}
+                </if>
+                and p.type = #{type}
+            </if>
+            <if test="type == 1">
+                AND p.type = #{type}
+            </if>
+            <if test="kind != null">
+                and p.kind = #{kind}
+            </if>
+            order by p.c_pictrue_id desc limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_pictrueList" resultType="int">
+        <if test="gourpType == 1">
+            SELECT count(1) FROM (SELECT p.kind, 0 as isFile FROM c_pictrue p where p.active = 1
+            <if test="type == 0">
+                <if test="orgId != null">
+                    AND p.ad_org_id = #{orgId}
+                </if>
+                AND p.type = #{type}
+            </if>
+            <if test="type == 1">
+                AND p.type = #{type}
+            </if>
+            GROUP BY p.kind) t
+        </if>
+        <if test="gourpType == 2">
+            select count(1) from c_pictrue p where p.active = 1
+            <if test="type == 0">
+                <if test="orgId != null">
+                    AND p.ad_org_id = #{orgId}
+                </if>
+                and p.type = #{type}
+            </if>
+            <if test="type == 1">
+                AND p.type = #{type}
+            </if>
+            <if test="kind != null">
+                and p.kind = #{kind}
+            </if>
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="pictrueResult">
+        select p.* from c_pictrue p where p.active = 1
+        <if test="pictrueId != null">
+            AND p.c_pictrue_id = #{pictrueId}
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_pictrue(
+        c_pictrue_id,
+        ad_client_id,
+        ad_org_id,
+        pictrue_path,
+        qiniu_path,
+        year,
+        month,
+        day,
+        kind,
+        type,
+        original,
+        created_by,
+        created
+        ) values (
+        #{pictrueId},
+        #{clientId},
+        #{orgId},
+        #{pictruePath},
+        #{qiniuPath},
+        #{year},
+        #{month},
+        #{day},
+        #{kind},
+        #{type},
+        #{original},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_pictrue
+        set
+        pictrue_path = #{pictruePath},
+        original = #{original}
+        where
+        c_pictrue_id = #{pictrueId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_pictrue
+        where c_pictrue_id = #{pictrueId}
+    </delete>
+    
+</mapper>

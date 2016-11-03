@@ -1,0 +1,213 @@
+<script type="text/ng-template" id="pushMaterial">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal">
+            <h3>发布素材</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">素材标题</label>
+                    <div class="col-sm-9">
+                        <span class="text">{{vm.view.description}}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">素材</label>
+                    <div class="col-sm-9">
+                        <ul ng-show="vm.view.fileKindName!='video' " class="upload_list">
+                            <li class="last">
+                                <img ng-if="vm.view.fileKindName=='image'" ng-src="{{vm.view.qiniuPath | myeeUrlImg}}" src="http://cdn.myee7.com/FuMJj5jpAK8_wd2c0KvdwEmCaATt?imageView2/1/w/150/h/95" />
+                                <img ng-if="vm.view.fileKindName=='apk'"  src="http://cdn.myee7.com/FoQFPdGsn0eIRH35acfSwpACKZFW?imageView2/1/w/150/h/95" />
+                                <img ng-if="vm.view.fileKindName!='apk' && vm.view.fileKindName!='image'"  src="http://cdn.myee7.com/FuMJj5jpAK8_wd2c0KvdwEmCaATt?imageView2/1/w/150/h/95" />
+                            </li>
+                        </ul>
+                        <ul ng-show="vm.view.fileKindName=='video' " class="video_list">
+                            <li class="last">
+                                <c-video ng-show="vm.view"></c-video>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd">
+                            <input ng-model="vm.startTime" type="text" class="angular-datepicker-input" placeholder="上架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>下架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd">
+                            <input ng-model="vm.endTime" type="text" class="angular-datepicker-input" placeholder="下架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-click="vm.save()"><span>发布素材</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<script type="text/ng-template" id="addMaterial">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal" id="type_f" name="type_f" novalidate="">
+            <h3>{{vm.title}}素材</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>素材标题</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.description" placeholder="输入标题" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>素材作用</label>
+                    <div class="col-sm-9">
+                        <select ng-model="vm.view.kind" ng-init="vm.view.kind?vm.view.kind:vm.view.kind = 0">
+                            <option value="0">未定义</option>
+                            <option value="1">apk升级文件</option>
+                            <option value="2">微信支付二维码</option>
+                            <option value="3">支付宝支付二维码</option>
+                            <option ng-if="vm.view.kind==100" value="100">升级固件(升级专用)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上传素材<br /><small>支持:<br />apk、音频(mp3、wmv、wav)、txt、图片(jpg、png)<br /></small></label>
+                    <div class="col-sm-9">
+                        <ul ng-show="vm.pic.fileKindName!='video' " class="upload_list">
+                            <li class="upload last" data-type="material"  ng-qiniu="vm.material(progress,res,qn)" onclick="this.value = null">
+                                <img ng-if="vm.pic.fileKindName=='image'" ng-show="progress || vm.pic" ng-src="{{vm.pic.qiniuPath | myeeUrlImg}}" src="skin/images/loading.jpg" />
+                                <img ng-if="vm.pic.fileKindName=='apk'"  src="http://cdn.myee7.com/FoQFPdGsn0eIRH35acfSwpACKZFW?imageView2/1/w/150/h/95" />
+                                <img ng-if="vm.pic.fileKindName=='bin/img'"  src="http://cdn.myee7.com/Fg4yC3EO8hbbLotIdfD3pspfw4yT?imageView2/1/w/150/h/95" />
+                                <img ng-if="vm.pic.fileKindName!='bin/img' && vm.pic.fileKindName!='apk' && vm.pic.fileKindName!='image'"  src="http://cdn.myee7.com/FuMJj5jpAK8_wd2c0KvdwEmCaATt?imageView2/1/w/150/h/95" />
+                                <var style="width: {{progress || 0}}%;"></var>
+                                <a ng-hide="progress || vm.pic">上传素材</a>
+                            </li>
+                        </ul>
+                        <ul ng-show="vm.pic.fileKindName=='video' " class="video_list">
+                            <li class="last" data-type="material"  ng-qiniu="vm.material(progress,res,qn)" onclick="this.value = null">
+                                <img ng-show="progress" src="skin/images/loading.jpg" />
+                                <c-video ng-show="vm.pic"></c-video>
+                                <var style="width: {{progress || 0}}%;"></var>
+                                <a ng-hide="progress || vm.pic">上传视频</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="vm.isStore">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.startTime}}">
+                            <input ng-model="vm.startTime" type="text" class="angular-datepicker-input" placeholder="上架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="vm.isStore">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>下架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.endTime}}">
+                            <input ng-model="vm.endTime" type="text" class="angular-datepicker-input" placeholder="下架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">素材包名</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.packageName" placeholder="输入素材包名" value=""/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">素材版本</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.version" placeholder="输入素材版本" value=""/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>是否启用</label>
+                    <div class="col-sm-9">
+                        <label class="inline">
+                            <input ng-model="vm.active" type="checkbox" class="ace ace-switch ace-switch-5" ng-checked="vm.active==0?false:true">
+                            <span class="lbl"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-disabled="type_f.$invalid" ng-click="vm.save()"><span>{{vm.title}}</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<div class="row" ng-if="(C.userInfo.roleType != 'SUPERADMIN' || !vm.isStore) && C.userInfo.roleType != 'BRANDUSER'"><div class="col-xs-12"><a class="btn btn-sm btn-danger" ng-click="vm.add()"><i class="fa fa-plus bigger-120"></i>添加素材</a></div></div>
+<div class="space-6"></div>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th class="center">素材业务ID</th>
+                        <th>素材图</th>
+                        <th>素材名称</th>
+                        <th>素材作用</th>
+                        <th class="center">文件类型</th>
+                        <th class="center">包名</th>
+                        <th class="center">版本号</th>
+                        <th>创建时间</th>
+                        <th ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">上架时间</th>
+                        <th ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">下架时间</th>
+                        <th class="center">状态</th>
+                        <th class="center">操作</th>
+                        <th class="center">推送</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="l in vm.list">
+                        <td class="center">{{::l.materialBusinessId}}</td>
+                        <td>
+                            <img ng-if="l.fileKindName==='image'" ng-src="{{::l.qiniuPath | myeeUrlImg}}" src="http://cdn.myee7.com/FuMJj5jpAK8_wd2c0KvdwEmCaATt?imageView2/1/w/150/h/95"/>
+                            <img ng-if="l.fileKindName==='apk'"  src="http://cdn.myee7.com/FoQFPdGsn0eIRH35acfSwpACKZFW?imageView2/1/w/150/h/95" />
+                            <img ng-if="l.fileKindName==='bin/img'"  src="http://cdn.myee7.com/Fg4yC3EO8hbbLotIdfD3pspfw4yT?imageView2/1/w/150/h/95" />
+                            <img ng-if="l.fileKindName!='apk' && l.fileKindName!='bin/img' && l.fileKindName!='image' && l.fileKindName!='video'"  src="http://cdn.myee7.com/FuMJj5jpAK8_wd2c0KvdwEmCaATt?imageView2/1/w/150/h/95" />
+                            <img ng-if="l.fileKindName==='video'"ng-src="{{::l.qiniuPath | myeeUrlVideo:true}}" src="skin/images/video_bg.jpg"/>
+                        </td>
+                        <td class="t-left">{{::l.description}}</td>
+                        <td class="center">
+                            {{::l.materialUse}}
+                        </td>
+                        <td class="center">{{::l.fileKindName}}</td>
+                        <td class="center">{{::l.packageName}}</td>
+                        <td class="center">{{::l.version}}</td>
+                        <td class="t-left">{{::l.created | dateFormat}}</td>
+                        <td ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">{{::l.timeStart | dateFormat}}</td>
+                        <td ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">{{::l.timeEnd | dateFormat}}</td>
+                        <td class="center">
+                            <i ng-class="l.active==1? 'green fa fa-check':'light-green fa fa-close'"></i>
+                        </td>
+                        <td class="center">
+                            <i ng-click="vm.add(true,$index)" class="green fa fa-pencil bigger-130"></i>
+                        </td>
+                        <td class="center" ng-if="!vm.isStore">
+                            <span ng-if="l.fileKindName!='bin/img'" class="label label-success push_ico" ng-click="vm.push($index)">推送<i ng-show="l.push" class="red fa fa-flag"></i></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

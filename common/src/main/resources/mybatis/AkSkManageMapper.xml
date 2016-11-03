@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.AkSkManageDao">
+
+    <resultMap id="akSkResult" type="AkSk">
+    <result property="akSkId" column="i_ak_sk_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="accessKey" column="access_key"/>
+    <result property="secretKey" column="secret_key"/>
+    <result property="companyName" column="company_name"/>
+    <result property="companyIp" column="company_ip"/>
+</resultMap>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="akSkResult">
+        select a.* from i_ak_sk a where a.active = 1 AND a.access_key = #{accessKey}
+    </select>
+
+</mapper>

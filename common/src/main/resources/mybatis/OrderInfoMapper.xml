@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.OrderInfoDao">
+
+    <insert id="addEntity">
+        insert into c_order(menu_id,shop_id,name,price,unit,menu_code,create_time,update_time)
+        values(#{menuId},#{shopId},#{name},#{amount},#{unit},#{menuCode},now(),now());
+        <selectKey resultType="long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+    </insert>
+
+    <update id="updateEntity">
+        update c_order set pay_status = 2 where order_id = #{orderId}
+    </update>
+
+</mapper>

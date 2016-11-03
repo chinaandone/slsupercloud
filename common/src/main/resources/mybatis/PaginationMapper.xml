@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.PaginationDao">
+
+    <resultMap id="MenuInfoResult" type="MenuInfo">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="menuId" column="menu_id"/>
+        <result property="menuCode" column="menu_code"/>
+        <result property="price" column="price"/>
+        <result property="unit" column="unit"/>
+        <result property="photo" column="photo"/>
+        <result property="subMenuId" column="sub_menu_id"/>
+        <result property="scanCode" column="scan_code"/>
+    </resultMap>
+
+    <select id="list_menuInfoList" resultMap="MenuInfoResult">
+        select a.* from r_menu a where 1=1
+        <if test="shopId != null">
+            and a.ad_org_id = #{shopId}
+        </if>
+        <if test="queryKey!= null">
+            and a.name LIKE concat('%',#{queryKey},'%')
+        </if>
+        order by a.id desc limit #{rowNum} offset #{skipNum};
+    </select>
+    <select id="count_menuInfoList" resultType="int">
+        select count(1) from r_menu where 1=1
+        <if test="shopId != null">
+            and ad_org_id = #{shopId}
+        </if>
+        <if test="queryKey!= null">
+            and name LIKE concat('%',#{queryKey},'%')
+        </if>
+    </select>
+
+</mapper>

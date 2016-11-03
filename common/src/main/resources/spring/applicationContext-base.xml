@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <context:component-scan base-package="com.clever">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!-- 将多个配置文件位置放到列表中 -->
+    <bean id="propertyResources" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>classpath:config/redis.properties</value>
+                <value>classpath:config/domain.properties</value>
+                <value>classpath:config/jdbc.properties</value>
+                <value>classpath:/config/commApi.properties</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    <!-- 全局属性源 -->
+    <bean id="globalPropertySources"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations" ref="propertyResources"/>
+        <property name="fileEncoding" value="utf-8"/>
+    </bean>
+
+    <!-- 可以使用如下的方式声明Properties类型的FactoryBean来加载配置文件，这种方式就只能当做Properties属性注入，而不能获其中具体的值 -->
+    <bean id="remoteConfigs" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations" ref="propertyResources"/>
+    </bean>
+
+    <bean id="commConfig" class="com.clever.common.util.CommConfig" scope="singleton">
+        <property name="qiniuHttpApiUrl" value="${qiniu_http_api_url}"/>
+        <property name="qiniuAccesskey" value="${qiniu_accesskey}"/>
+        <property name="qiniuSecretkey" value="${qiniu_secretkey}"/>
+        <property name="qiniuBucket" value="${qiniu_bucket}"/>
+        <property name="alidayuHttpApiUrl" value="${alidayu_http_api_url}"/>
+        <property name="alidayuApiAppkey" value="${alidayu_api_appkey}"/>
+        <property name="alidayuApiSecret" value="${alidayu_api_secret}"/>
+        <property name="alidayuSignNameActionPen" value="${alidayu_sign_name_action_pen}"/>
+        <property name="alidayuSmsType" value="${alidayu_sms_type}"/>
+        <property name="alidayuSendParam" value="${alidayu_send_param}"/>
+        <property name="alidayuSignNameLuckDraw" value="${alidayu_sign_name_luck_draw}"/>
+    </bean>
+
+</beans>

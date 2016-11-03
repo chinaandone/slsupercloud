@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.PathManageDao">
+
+    <resultMap id="pathResult" type="Path">
+    <result property="pathId" column="c_path_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="actionName" column="action_name"/>
+    <result property="pathName" column="path_name"/>
+</resultMap>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="pathResult">
+        select p.* from c_path p where p.active = 1
+        <if test="actionName != null">
+            AND p.action_name = #{actionName}
+        </if>
+    </select>
+    
+</mapper>

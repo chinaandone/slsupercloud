@@ -1,0 +1,103 @@
+<script type="text/ng-template" id="addManageTables">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal" id="tables_f" name="tables_f" novalidate="">
+            <h3>{{vm.title}}餐桌</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>选择餐桌类型</label>
+                    <div class="col-sm-9">
+                        <select ng-model="vm.tableTypeId">
+                            <option value="0">选择餐桌类型</option>
+                            <option ng-repeat="l in vm.tableType" value="{{l.tableTypeId}}" ng-selected="vm.tableTypeId == l.tableTypeId">{{l.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>餐桌名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.name" maxlength="30" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">餐桌码</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.scanCode" maxlength="3" minlength="3"  onkeyup="value=this.value.replace(/\D+/g,'')" ng-pattern="/[012]\d{2}$/" placeholder="输入000-200之间的3位数字" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">ERP ID</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.erpId" maxlength="10" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>餐桌描述</label>
+                    <div class="col-sm-9">
+                        <textarea ng-model="vm.view.description" columns="1" rows="7" required></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>餐桌可加座位</label>
+                    <div class="col-sm-9">
+                        <input type="number" ng-model="vm.view.seatAdded" maxlength="2" onkeyup="value=this.value.replace(/\D+/g,'')" required />
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-disabled="tables_f.$invalid" ng-click="vm.save()"><span>{{vm.title}}</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<div class="row"><div class="col-xs-12"><a class="btn btn-sm btn-danger" ng-click="vm.add('add')"><i class="fa fa-plus bigger-120"></i>添加餐桌</a></div></div>
+<div class="space-6"></div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th class="center">餐桌ID</th>
+                        <th>餐桌名称</th>
+                        <th>餐桌类型</th>
+                        <th>餐桌码</th>
+                        <th>ERP ID</th>
+                        <th>餐桌描述</th>
+                        <th>餐桌可加座位</th>
+                        <th>创建日期</th>
+                        <th class="center">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="l in vm.list">
+                        <td class="center">{{::l.tableId}}</td>
+                        <td class="t-left">{{::l.name}}</td>
+                        <td>{{::l.tableTypeName}}</td>
+                        <td>{{::l.scanCode}}</td>
+                        <td>{{::l.erpId}}</td>
+                        <td>{{::l.description}}</td>
+                        <td>{{::l.seatAdded}}</td>
+                        <td>{{::l.created | dateFormat}}</td>
+                        <td class="center">
+                            <i ng-click="vm.add('edit',$index)" class="green fa fa-pencil bigger-130"></i>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

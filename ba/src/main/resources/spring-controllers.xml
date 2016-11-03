@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+    <context:component-scan base-package="com.clever">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+    <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" />   
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">   
+	    <property name="favorPathExtension" value="false" />  
+	    <property name="favorParameter" value="false" />   
+	    <property name="ignoreAcceptHeader" value="false" />   
+	    <property name="mediaTypes" >   
+	        <value>  
+	            atom=application/atom+xml  
+	            html=text/html  
+	            json=application/json  
+	            *=*/*  
+	        </value>   
+	    </property>  
+	</bean>  
+
+    <aop:aspectj-autoproxy/>
+
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+	  	<property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView"/>
+	</bean>
+
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <property name="resolveLazily" value="true"/>
+	   <!-- <property name="maxUploadSize" value="20000"/> -->
+    	 <property name="maxUploadSize" value="5242880"/>
+ 	</bean>
+
+</beans>

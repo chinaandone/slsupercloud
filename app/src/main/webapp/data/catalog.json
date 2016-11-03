@@ -1,0 +1,67 @@
+{
+	"code":200,
+	"message":"资源库目录",
+	"success":true,
+	"data":[
+		{
+			"store": "商业",
+			"store_media":[
+				{
+					"typename":"视频",
+					"type":{
+
+					}
+				},
+				{
+					"typename":"图片",
+					"type":[{
+						"id":"0",
+						"name":"未分类"
+					},
+					{
+						"id":"1",
+						"name":"优惠专区"
+					},
+					{
+						"id":"2",
+						"name":"广告图片"
+					},
+					{
+						"id":"3",
+						"name":"菜品图片"
+					}]
+				}
+			]
+		},
+		{
+			"store": "商业",
+			"store_media":[
+				{
+					"typename":"视频",
+					"type":{
+
+					}
+				},
+				{
+					"typename":"图片",
+					"type":[{
+						"id":"0",
+						"name":"未分类"
+					},
+					{
+						"id":"1",
+						"name":"优惠专区"
+					},
+					{
+						"id":"2",
+						"name":"广告图片"
+					},
+					{
+						"id":"3",
+						"name":"菜品图片"
+					}]
+				}
+			]
+		}
+	]
+}

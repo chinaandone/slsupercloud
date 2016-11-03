@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.TableTypeDao">
+
+    <resultMap id="TableTypeViewResult" type="TableTypeView">
+        <result property="id" column="r_table_type_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <resultMap id="TableTypeResult" type="TableType">
+        <result property="id" column="r_table_type_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <select id="queryAllTableTypeByShopId" resultMap="TableTypeViewResult">
+        select a.* from r_table_type a where a.ad_org_id=#{shopId}
+    </select>
+
+</mapper>

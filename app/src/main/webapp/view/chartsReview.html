@@ -1,0 +1,83 @@
+<div class="col-xs-12 rating">
+    <div class="col-xs-3">
+        <div class="col-xs-12 ratingTotal"><span>{{vm.feelAVG.feelWhole/10}}</span><small>分</small></div>
+        <span class="common-rating rating-16x16">
+            <span class="rate-stars" style="width:{{vm.feelAVG.feelWhole*2}}%"></span>
+        </span>
+    </div>
+    <div class="col-xs-9">
+        <ul>
+            <li>
+                <span>环境</span>
+                <span class="common-rating rating-16x16">
+                    <span class="rate-stars" style="width:{{vm.feelAVG.feelEnvironment*2}}%"></span>
+                </span>
+                <span>{{vm.feelAVG.feelEnvironment/10}}分</span>
+            </li>
+            <li>
+                <span>味道</span>
+                <span class="common-rating rating-16x16">
+                    <span class="rate-stars" style="width:{{vm.feelAVG.feelFlavor*2}}%"></span>
+                </span>
+                <span>{{vm.feelAVG.feelFlavor/10}}分</span>
+            </li>
+            <li>
+                <span>服务</span>
+                <span class="common-rating rating-16x16">
+                    <span class="rate-stars" style="width:{{vm.feelAVG.feelService*2}}%"></span>
+                </span>
+                <span>{{vm.feelAVG.feelService/10}}分</span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="rating_search">
+    <div class="col-xs-12 dates">
+        <div class="input-daterange input-group m-r">
+            <ul>
+                <li class="l" ng-click="vm.WeekData(0)"><div class="week">上周</div></li>
+                <li class="l" ng-click="vm.WeekData(1)"><div class="week">本周</div></li>
+                <li>
+                    <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.startTime}}">
+                        <input ng-model="vm.startTime" type="text" class="angular-datepicker-input" placeholder="开始时间" required/>
+                    </div>
+                </li>
+                <li><div class="input-group-addon"><i class="fa fa-exchange"></i></div></li>
+                <li>
+                    <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.endTime}}">
+                        <input ng-model="vm.endTime" type="text" class="angular-datepicker-input" placeholder="结束时间" required/>
+                    </div>
+                </li>
+                <li class="m-l10"><button ng-click="vm.chart()" class="btn btn-sm btn-danger m-b m-r"><i class="ace-icon fa fa-search"></i>搜索</button></li>
+                <li class="m-l10"><button ng-click="vm.chart(true)" class="btn btn-sm btn-success m-b m-r"><i class="ace-icon fa fa-download"></i>下载</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row rating_list">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <dl ng-repeat="l in vm.list">
+                    <dt><span class="common-rating rating-16x16"><span class="rate-stars" style="width:{{l.feelWhole*2}}%"></span></span><time class="m-l10">{{l.timeSecond | dateFormat}}</time></dt>
+                    <div>
+                        <p><b>餐饮：</b>{{l.mealsRemark}}</p>
+                        <p ng-if="l.deviceRemark"><b>设备：</b>{{l.deviceRemark}}</p>
+                        <address>{{l.clientName}} {{l.orgName}} {{l.tableName}}</address>
+                    </dd>
+                </dl>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager ng-show="pageCount" page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                            <span ng-hide="pageCount">没有更多的服务评价</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

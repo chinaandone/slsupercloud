@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.RollMainManageDao">
+
+    <resultMap id="pictrueResult" type="Pictrue">
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <result property="original" column="original"/>
+        <result property="kind" column="kind"/>
+    </resultMap>
+
+    <!-- 给api用的返回对象-->
+    <resultMap id="rollMainResult" type="RollMain">
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="type" column="type"/>
+        <result property="rollTime" column="rollTime"/>
+        <result property="active" column="active"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="title" column="title"/>
+        <result property="descriptionText" column="descriptionText"/>
+        <result property="picOrinName" column="original"/>
+        <collection property="advertisementList" column="ad_org_id" select="com.clever.common.repository.AdvertisementManageDao.getEntities"/>
+        <collection property="rollDetailList" column="c_roll_main_id" select="com.clever.common.repository.RollDetailManageDao.getEntities"/>
+        <!--<association property="pictrue" javaType="Pictrue" resultMap="pictrueResult"/>-->
+    </resultMap>
+
+    <!-- 给webapp用的返回对象-->
+    <resultMap id="rollMain3Result" type="RollMain">
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="type" column="type"/>
+        <result property="rollTime" column="rollTime"/>
+        <result property="active" column="active"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="title" column="title"/>
+        <result property="descriptionText" column="descriptionText"/>
+        <collection property="rollDetailList" column="c_roll_main_id" select="com.clever.common.repository.RollDetailManageDao.getEntities"/>
+        <!--<association property="pictrue" javaType="Pictrue" resultMap="pictrueResult"/>-->
+    </resultMap>
+
+    <!-- 分页查询本店活动或木爷资源活动列表 -->
+    <select id="list_rollMainList" resultMap="rollMain3Result">
+          select r.*, dt.title, dt.description as descriptionText, p.pictrue_path, p.qiniu_path
+            from c_roll_main r
+            LEFT JOIN c_detail_text dt ON dt.c_roll_main_id = r.c_roll_main_id
+            LEFT JOIN c_pictrue p ON p.c_pictrue_id = r.c_pictrue_id
+            where r.active = 1
+            <if test="type != null">
+                AND r.type = #{type}
+            </if>
+            <if test="clientId != null">
+              <if test="type != 1">
+                  and r.ad_client_id = #{clientId}
+              </if>
+            </if>
+            <if test="orgId != null">
+              <if test="type != 1">
+                  and r.ad_org_id = #{orgId}
+              </if>
+            </if>
+            order by r.c_roll_main_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 分页查询本店活动或木爷资源活动列表总数 -->
+    <select id="count_rollMainList" resultType="int">
+        select count(1)
+        from c_roll_main r
+        LEFT JOIN c_detail_text dt ON dt.c_roll_main_id = r.c_roll_main_id
+        LEFT JOIN c_pictrue p ON p.c_pictrue_id = r.c_pictrue_id
+        where r.active = 1
+        <if test="type != null">
+            AND r.type = #{type}
+        </if>
+        <if test="clientId != null">
+            <if test="type != 1">
+                and r.ad_client_id = #{clientId}
+            </if>
+        </if>
+        <if test="orgId != null">
+            <if test="type != 1">
+                and r.ad_org_id = #{orgId}
+            </if>
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="rollMainResult">
+        select r.* from c_roll_main r where r.active = 1
+        <if test="rollMainId != null">
+          AND r.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="type != null">
+          AND r.type = #{type}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="rollMainResult">
+        (select
+            r.c_roll_main_id,
+            r.ad_client_id,
+            r.ad_org_id,
+            r.c_pictrue_id,
+            r.order_seq,
+            r.start_time,
+            r.end_time,
+            r.type,
+            r.rollTime,
+            p.pictrue_path,
+            p.qiniu_path,
+            p.original,
+            dt.title,
+            dt.description as descriptionText
+            from c_roll_main r
+            LEFT JOIN c_pictrue p
+            ON r.c_pictrue_id = p.c_pictrue_id
+            LEFT JOIN c_detail_text dt ON dt.c_roll_main_id = r.c_roll_main_id
+            where r.active = 1 AND r.type = 0
+            <if test="orgId != null">
+                AND r.ad_org_id = #{orgId}
+            </if>
+            <if test="nowDate != null">
+                AND r.start_time &lt;= #{nowDate} AND r.end_time &gt;= #{nowDate}
+            </if>
+            order by r.order_seq asc limit 10 offset 0)
+            <if test="type == 1">
+                UNION ALL
+                (select
+                u.c_roll_main_id,
+                u.ad_client_id,
+                u.ad_org_id,
+                r1.c_pictrue_id,
+                u.order_seq,
+                u.start_time,
+                u.end_time,
+                r1.type,
+                r1.rollTime,
+                p.pictrue_path,
+                p.qiniu_path,
+                p.original,
+                u.title,
+                dt.description as descriptionText
+                from
+                  (select rp.ad_client_id,
+                          rp.ad_org_id,
+                          rp.c_roll_main_id,
+                          rp.title,
+                          rp.order_seq,
+                          rp.start_time,
+                          rp.end_time
+                    from c_roll_publish rp
+                    WHERE rp.ad_org_id = #{orgId} AND rp.active = 1
+                    <if test="nowDate != null">
+                        AND rp.start_time &lt;= #{nowDate} AND rp.end_time &gt;= #{nowDate}
+                    </if>
+                    GROUP BY rp.ad_client_id, rp.ad_org_id, rp.c_roll_main_id, rp.title, rp.order_seq, rp.start_time, rp.end_time
+                  ) u
+                LEFT JOIN c_roll_main r1 ON r1.c_roll_main_id = u.c_roll_main_id
+                LEFT JOIN c_pictrue p
+                ON r1.c_pictrue_id = p.c_pictrue_id
+                LEFT JOIN c_detail_text dt ON dt.c_roll_main_id = r1.c_roll_main_id
+                where r1.active = 1 AND r1.type = 1
+                order by r1.order_seq asc limit 5 offset 0)
+            </if>
+    </select>
+
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_roll_main(
+        c_roll_main_id,
+        ad_client_id,
+        ad_org_id,
+        c_pictrue_id,
+        order_seq,
+        description,
+        start_time,
+        end_time,
+        type,
+        rollTime,
+        created_by,
+        created
+        ) values (
+        #{rollMainId},
+        #{clientId},
+        #{orgId},
+        #{pictrueId},
+        #{orderSeq},
+        #{description},
+        #{startTime},
+        #{endTime},
+        #{type},
+        #{rollTime},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update c_roll_main
+        set
+        <if test="pictrueId != null">
+            c_pictrue_id = #{pictrueId},
+        </if>
+        <if test="orderSeq != null">
+            order_seq = #{orderSeq},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="startTime != null">
+            start_time = #{startTime},
+        </if>
+        <if test="endTime != null">
+            end_time = #{endTime},
+        </if>
+        <if test="type != null">
+            type = #{type},
+        </if>
+        <if test="rollTime != null">
+            rollTime = #{rollTime},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_roll_main_id = #{rollMainId}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from c_roll_main
+        where c_roll_main_id = #{rollMainId}
+    </delete>
+    
+</mapper>

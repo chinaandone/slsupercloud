@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.TableManageDao">
+
+    <resultMap id="tableResult" type="Table">
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="tableId" column="r_table_id"/>
+        <result property="tableTypeId" column="r_table_type_id"/>
+        <result property="tableTypeName" column="table_type"/>
+        <result property="tableZoneId" column="r_table_zone_id"/>
+        <result property="tableZoneName" column="table_zone"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="seatAdded" column="seat_added"/>
+        <result property="beeperDeviceId" column="beeper_device_id"/>
+        <result property="scanCode" column="scan_code"/>
+        <result property="erpId" column="text_id"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_tableList" resultMap="tableResult">
+        select t.r_table_id,t.ad_client_id,t.ad_org_id,t.r_table_type_id,t.r_table_zone_id,t.scan_code,t.text_id,
+        t.name,t.description,t.seat_added,t.beeper_device_id,t.active,t.created_by,t.created,
+        tp.name AS table_type,tz.name AS table_zone
+        from r_table t
+        LEFT JOIN r_table_type tp ON tp.r_table_type_id = t.r_table_type_id
+        LEFT JOIN r_table_zone tz ON tz.r_table_zone_id = t.r_table_zone_id
+        where t.active = 1
+        <if test="orgId != null">
+            and t.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND t.ad_client_id = #{clientId}
+        </if>
+        order by t.r_table_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+            limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_tableList" resultType="int">
+        select COUNT(1)
+        from r_table t
+        LEFT JOIN r_table_type tp ON tp.r_table_type_id = t.r_table_type_id
+        LEFT JOIN r_table_zone tz ON tz.r_table_zone_id = t.r_table_zone_id
+        where t.active = 1
+        <if test="orgId != null">
+            and t.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND t.ad_client_id = #{clientId}
+        </if>
+        <if test="tableName != null">
+            AND t.name = #{tableName}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="tableResult">
+        select t.r_table_id,t.ad_client_id,t.ad_org_id,t.r_table_type_id,t.r_table_zone_id,t.scan_code,t.text_id,
+        t.name,t.description,t.seat_added,t.beeper_device_id,t.active,t.created_by,t.created,
+        tp.name AS table_type,tz.name AS table_zone
+        from r_table t
+        LEFT JOIN r_table_type tp ON tp.r_table_type_id = t.r_table_type_id
+        LEFT JOIN r_table_zone tz ON tz.r_table_zone_id = t.r_table_zone_id
+        where 1 = 1
+        <if test="tableId != null">
+          AND t.r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="tableResult">
+        select t.r_table_id,t.ad_client_id,t.ad_org_id,t.r_table_type_id,t.r_table_zone_id,t.scan_code,t.text_id,
+        t.name,t.description,t.seat_added,t.beeper_device_id,t.active,t.created_by,t.created,
+        tp.name AS table_type,tz.name AS table_zone
+        from r_table t
+        LEFT JOIN r_table_type tp ON tp.r_table_type_id = t.r_table_type_id
+        LEFT JOIN r_table_zone tz ON tz.r_table_zone_id = t.r_table_zone_id
+        where t.active = 1
+        <if test="orgId != null">
+            and t.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND t.ad_client_id = #{clientId}
+        </if>
+        order by t.r_table_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into r_table(
+        r_table_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_type_id,
+        r_table_zone_id,
+        name,
+        description,
+        seat_added,
+        beeper_device_id,
+        scan_code,
+        text_id,
+        created_by,
+        created
+        ) values (
+        #{tableId},
+        #{clientId},
+        #{orgId},
+        #{tableTypeId},
+        #{tableZoneId},
+        #{name},
+        #{description},
+        #{seatAdded},
+        #{beeperDeviceId},
+        #{scanCode},
+        #{erpId},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update r_table
+        set
+        <if test="tableTypeId != null">
+            r_table_type_id = #{tableTypeId},
+        </if>
+        <if test="tableZoneId != null">
+            r_table_zone_id = #{tableZoneId},
+        </if>
+        <if test="name != null">
+            name = #{name},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="seatAdded != null">
+            seat_added = #{seatAdded},
+        </if>
+        <if test="beeperDeviceId != null">
+            beeper_device_id = #{beeperDeviceId},
+        </if>
+        <if test="scanCode != null">
+            scan_code = #{scanCode},
+        </if>
+        <if test="erpId != null">
+            text_id = #{erpId},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        r_table_id = #{tableId}
+    </update>
+
+    <!-- 删除-->
+    <!--delete id="removeEntity">
+        delete from r_table
+        where r_table_id = #{tableId}
+    </delete-->
+
+</mapper>

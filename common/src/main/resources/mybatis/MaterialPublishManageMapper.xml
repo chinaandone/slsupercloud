@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MaterialPublishManageDao">
+
+    <resultMap id="materialPublishResult" type="MaterialPublishDTView">
+        <result property="materialPublishId" column="c_material_publish_id"/>
+        <result property="materialBusinessId" column="c_business_id"/>
+        <result property="timeStart" column="time_start"/>
+        <result property="timeEnd" column="time_end"/>
+        <result property="kind" column="kind"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="previewPath" column="preview_path"/>
+        <result property="materialPath" column="material_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="description" column="description"/>
+        <result property="active" column="active"/>
+        <result property="packageName" column="package_name"/>
+        <result property="version" column="version"/>
+        <result property="fileKindName" column="file_kind_name"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_materialPublishList" resultMap="materialPublishResult">
+        select vb.active,vb.package_name,vb.version,mt.name as file_kind_name,
+        <if test="orgId == null">
+            vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,v.qiniu_path,vb.kind
+        </if>
+        <if test="orgId != null">
+            vp.c_material_publish_id, vp.c_business_id, vp.ad_client_id, vp.ad_org_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end, v.preview_path, v.material_path, o.name as org_name,v.qiniu_path,vb.kind
+        </if>
+        from c_material_publish vp
+        LEFT JOIN c_material_business vb ON vb.c_business_id = vp.c_business_id AND vb.type = 1
+        LEFT JOIN c_material v ON v.c_material_id = vb.c_material_id
+        LEFT JOIN ad_org o ON o.ad_org_id = vp.ad_org_id
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        where vp.active = 1
+        <if test="clientId != null">
+            and vp.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and vp.ad_org_id = #{orgId}
+        </if>
+        <if test="materialBusinessId != null">
+            and vp.c_business_id = #{materialBusinessId}
+        </if>
+        <if test="description != null">
+            and vp.description = #{description}
+        </if>
+        <if test="publishTime != null">
+            and vp.publish_time = #{publishTime}
+        </if>
+        <if test="kind != null">
+            and vb.kind = #{kind}
+        </if>
+        <if test="orgId == null">
+            GROUP BY vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vb.kind
+        </if>
+        order by vp.publish_time desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_materialPublishList" resultType="int">
+        select count(1)
+        from(
+            select vb.active,vb.package_name,vb.version,mt.name as file_kind_name,
+            <if test="orgId == null">
+                vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,v.qiniu_path,vb.kind
+            </if>
+            <if test="orgId != null">
+                vp.c_material_publish_id, vp.c_business_id, vp.ad_client_id, vp.ad_org_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end, v.preview_path, v.material_path, o.name as org_name,v.qiniu_path,vb.kind
+            </if>
+            from c_material_publish vp
+            LEFT JOIN c_material_business vb ON vb.c_business_id = vp.c_business_id AND vb.type = 1
+            LEFT JOIN c_material v ON v.c_material_id = vb.c_material_id
+            LEFT JOIN ad_org o ON o.ad_org_id = vp.ad_org_id
+            LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+            where vp.active = 1
+            <if test="clientId != null">
+                and vp.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and vp.ad_org_id = #{orgId}
+            </if>
+            <if test="materialBusinessId != null">
+                and vp.c_business_id = #{materialBusinessId}
+            </if>
+            <if test="description != null">
+                and vp.description = #{description}
+            </if>
+            <if test="publishTime != null">
+                and vp.publish_time = #{publishTime}
+            </if>
+            <if test="kind != null">
+                and vb.kind = #{kind}
+            </if>
+            <if test="orgId == null">
+                GROUP BY vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vb.kind
+            </if>
+        ) t
+    </select>
+
+    <!-- 查询某店铺下已推总数 -->
+    <select id="countExist" resultType="int">
+        select count(1)
+        from c_material_publish vp
+        where vp.active = 1
+        <if test="clientId != null">
+            and vp.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and vp.ad_org_id = #{orgId}
+        </if>
+    </select>
+
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_material_publish(
+        c_material_publish_id,
+        c_business_id,
+        ad_client_id,
+        ad_org_id,
+        kind,
+        time_start,
+        time_end,
+        publish_time,
+        description,
+        created_by,
+        created,
+        updated_by,
+        updated
+        ) values (
+        #{materialPublishId},
+        #{materialBusinessId},
+        #{clientId},
+        #{orgId},
+        #{kind},
+        #{timeStart},
+        #{timeEnd},
+        #{publishTime},
+        #{description},
+        #{createdBy},
+        #{created},
+        #{updatedBy},
+        #{updated}
+        )
+    </insert>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+--         delete from c_material_publish
+        update c_material_publish
+        set active = 0
+        where c_business_id = #{materialBusinessId}
+        AND description = #{description}
+        AND publish_time = #{publishTime}
+        <if test="clientId != null">
+            AND ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ad_org_id = #{orgId}
+        </if>
+        <if test="materialPublishId != null">
+            AND c_material_publish_id = #{materialPublishId}
+        </if>
+    </delete>
+    
+</mapper>

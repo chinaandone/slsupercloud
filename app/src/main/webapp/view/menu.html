@@ -1,0 +1,11 @@
+<div class="sidebar">
+	<ul class="nav nav-list">
+		<li ng-repeat="m in menu" ng-class="{active:state.includes(m.class)}">
+			<a ng-if="m.child != ''" class="dropdown-toggle"><i class="fa fa-{{m.icon}}"></i><span class="menu-text">{{m.name}}</span><b class="arrow fa fa-angle-down"></b></a>
+			<a ng-if="m.child == ''" ui-sref="{{m.url}}"><i class="fa fa-{{m.icon}}"></i><span class="menu-text">{{m.name}}</span></a>
+			<ul class="submenu" ng-if="m.child != ''">
+				<li ng-repeat="c in m.child" ui-sref-active="active"><a ui-sref="{{c.url}}"><i class="fa fa-caret-right"></i>{{c.name}}</a></li>
+			</ul>
+		</li>
+	</ul>
+</div>

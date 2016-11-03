@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.VideoBusinessManageDao">
+
+    <resultMap id="videoBusinessResult" type="VideoBusiness">
+    <result property="businessId" column="c_business_id"/>
+    <result property="publishId" column="publish_id"/>
+    <result property="videoId" column="c_video_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="tableId" column="r_table_id"/>
+    <result property="kind" column="kind"/>
+    <result property="timeStart" column="time_start"/>
+    <result property="timeEnd" column="time_end"/>
+    <result property="previewPath" column="preview_path"/>
+    <result property="videoPath" column="video_path"/>
+    <result property="qiniuPath" column="qiniu_path"/>
+    <result property="videoSize" column="video_size"/>
+    <result property="type" column="type"/>
+    <result property="description" column="description"/>
+    <result property="playFreq" column="play_freq"/>
+    <result property="active" column="active"/>
+    <result property="createdBy" column="created_by"/>
+    <result property="created" column="created"/>
+</resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_videoBusinessList" resultMap="videoBusinessResult">
+        select
+        b.c_business_id,
+        b.c_video_id,
+        b.ad_client_id,
+        b.ad_org_id,
+        b.r_table_id,
+        v.preview_path,
+        v.video_path,
+        v.qiniu_path,
+        v.video_size,
+        b.kind,
+        b.time_start,
+        b.time_end,
+        b.type,
+        b.description,
+        b.active,
+        b.created_by,
+        b.created
+        from
+        c_video_business b
+        LEFT JOIN c_video v ON v.c_video_id = b.c_video_id
+        where b.active = 1
+        <if test="type != null">
+            AND b.type = #{type}
+        </if>
+        <if test="clientId != null">
+            <if test="type != 1">
+                and b.ad_client_id = #{clientId}
+            </if>
+        </if>
+        <if test="orgId != null">
+            <if test="type != 1">
+                and b.ad_org_id = #{orgId}
+            </if>
+        </if>
+        order by b.c_business_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_videoBusinessList" resultType="int">
+        select count(1)
+        from
+        c_video_business b
+        LEFT JOIN c_video v ON v.c_video_id = b.c_video_id
+        where b.active = 1
+        <if test="type != null">
+            AND b.type = #{type}
+        </if>
+        <if test="kind != null">
+            AND b.kind = #{kind}
+        </if>
+        <if test="clientId != null">
+            <if test="type != 1">
+                and b.ad_client_id = #{clientId}
+            </if>
+        </if>
+        <if test="orgId != null">
+            <if test="type != 1">
+                and b.ad_org_id = #{orgId}
+            </if>
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="videoBusinessResult">
+        select
+        b.c_business_id,
+        b.c_video_id,
+        b.ad_client_id,
+        b.ad_org_id,
+        b.r_table_id,
+        v.preview_path,
+        v.video_path,
+        v.qiniu_path,
+        v.video_size,
+        b.kind,
+        b.time_start,
+        b.time_end,
+        b.type,
+        b.description,
+        b.active,
+        b.created_by,
+        b.created
+        from
+        c_video_business b
+        LEFT JOIN c_video v ON v.c_video_id = b.c_video_id
+        where b.active = 1
+        <if test="businessId != null">
+          AND b.c_business_id = #{businessId}
+        </if>
+        <if test="type != null">
+            AND b.type = #{type}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="videoBusinessResult">
+        (select
+        b.c_business_id,
+        b.c_video_id,
+        b.ad_client_id,
+        b.ad_org_id,
+        b.r_table_id,
+        v.preview_path,
+        v.video_path,
+        v.qiniu_path,
+        v.video_size,
+        b.kind,
+        b.time_start,
+        b.time_end,
+        b.type,
+        b.description,
+        b.active,
+        b.created_by,
+        b.created,
+        0 as publish_id,
+        0 as play_freq
+        from
+        c_video_business b
+        LEFT JOIN c_video v ON v.c_video_id = b.c_video_id
+        where b.active = 1 AND b.type = 0
+        <if test="orgId != null">
+            AND b.ad_org_id = #{orgId}
+        </if>
+        <if test="kind != null">
+            AND b.kind = #{kind}
+        </if>
+        <if test="nowDate != null">
+            AND b.time_start &lt;= #{nowDate} AND b.time_end &gt;= #{nowDate}
+        </if>
+        order by b.c_business_id desc limit 2 offset 0)<!-- 一个点播视频、一个本店待机视频，所以limit是2-->
+        <if test="type == 1">
+            UNION ALL
+            (select
+            vp.c_business_id,
+            b1.c_video_id,
+            vp.ad_client_id,
+            vp.ad_org_id,
+            b1.r_table_id,
+            v1.preview_path,
+            v1.video_path,
+            v1.qiniu_path,
+            v1.video_size,
+            vp.kind,<!-- 查询要播放的木爷待机视频时，以发布时视频类型为准，即发布后再修改视频类型，必须重新发布才能生效。 -->
+            vp.time_start,
+            vp.time_end,
+            b1.type,
+            vp.description,
+            b1.active,
+            b1.created_by,
+            b1.created,
+            vp.c_video_publish_id as publish_id,
+            vp.play_freq
+            from
+            c_video_publish vp
+            LEFT JOIN c_video_business b1 ON b1.c_business_id = vp.c_business_id
+            LEFT JOIN c_video v1 ON v1.c_video_id = b1.c_video_id
+            where b1.active = 1 AND b1.type = 1 AND vp.active = 1
+            <if test="orgId != null">
+                AND vp.ad_org_id = #{orgId}
+            </if>
+            <!-- 查询要播放的木爷待机视频时，以发布时视频类型为准，即发布后再修改视频类型，必须重新发布才能生效。 -->
+            <if test="kind != null">
+                AND vp.kind = #{kind}
+            </if>
+            <if test="nowDate != null">
+                AND vp.time_start &lt;= #{nowDate} AND vp.time_end &gt;= #{nowDate}
+            </if>
+            order by vp.c_video_publish_id desc limit 30 offset 0)
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_video_business(
+        c_business_id,
+        c_video_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        kind,
+        time_start,
+        time_end,
+        type,
+        description,
+        created_by,
+        created
+        ) values (
+        #{businessId},
+        #{videoId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{kind},
+        #{timeStart},
+        #{timeEnd},
+        #{type},
+        #{description},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_video_business
+        set
+        <if test="kind != null">
+            kind = #{kind},
+        </if>
+        <if test="timeStart != null">
+            time_start = #{timeStart},
+        </if>
+        <if test="timeEnd != null">
+            time_end = #{timeEnd},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="videoId != null">
+            c_video_id = #{videoId},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+         updated = #{updated}
+        where
+        c_business_id = #{businessId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_video_business
+        where c_business_id = #{businessId}
+    </delete>
+    
+</mapper>

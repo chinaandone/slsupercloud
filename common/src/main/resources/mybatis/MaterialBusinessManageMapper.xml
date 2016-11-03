@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MaterialBusinessManageDao">
+
+    <resultMap id="materialBusinessResult" type="MaterialBusinessDTView">
+        <result property="materialBusinessId" column="c_business_id"/>
+        <result property="materialId" column="c_material_id"/>
+        <result property="kind" column="kind"/>
+        <result property="previewPath" column="preview_path"/>
+        <result property="materialPath" column="material_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="materialSize" column="material_size"/>
+        <result property="fileKindName" column="file_kind_name"/>
+        <result property="description" column="description"/>
+        <result property="active" column="active"/>
+        <result property="packageName" column="package_name"/>
+        <result property="version" column="version"/>
+        <result property="created" column="created"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_materialBusinessList" resultMap="materialBusinessResult">
+        select
+        b.*,
+        v.preview_path,
+        v.material_path,
+        v.qiniu_path,
+        v.material_size,
+        v.file_kind,
+        v.play_second,
+        v.original,
+        mt.name as file_kind_name
+        from
+        c_material_business b
+        LEFT JOIN c_material v ON v.c_material_id = b.c_material_id
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        <where>
+            <if test="type != null">
+                AND b.type = #{type}
+            </if>
+            <if test="clientId != null">
+                <if test="type != 1">
+                    and b.ad_client_id = #{clientId}
+                </if>
+            </if>
+            <if test="orgId != null">
+                <if test="type != 1">
+                    and b.ad_org_id = #{orgId}
+                </if>
+            </if>
+        </where>
+        order by b.c_business_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_materialBusinessList" resultType="int">
+        select count(1)
+        from
+        c_material_business b
+        LEFT JOIN c_material v ON v.c_material_id = b.c_material_id
+        <where>
+            <if test="type != null">
+                AND b.type = #{type}
+            </if>
+            <if test="clientId != null">
+                <if test="type != 1">
+                    and b.ad_client_id = #{clientId}
+                </if>
+            </if>
+            <if test="orgId != null">
+                <if test="type != 1">
+                    and b.ad_org_id = #{orgId}
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="materialBusinessResult">
+        select
+        b.*,
+        v.preview_path,
+        v.material_path,
+        v.qiniu_path,
+        v.material_size,
+        v.file_kind,
+        v.play_second,
+        v.original,
+        mt.name as file_kind_name
+        from
+        c_material_business b
+        LEFT JOIN c_material v ON v.c_material_id = b.c_material_id
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        <where>
+            <if test="materialBusinessId != null">
+              AND b.c_business_id = #{materialBusinessId}
+            </if>
+            <if test="type != null">
+                AND b.type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="materialBusinessResult">
+        (select
+        b.c_business_id,
+        b.c_material_id,
+        b.ad_client_id,
+        b.ad_org_id,
+        b.r_table_id,
+        b.kind,
+        b.time_start,
+        b.time_end,
+        b.type,
+        b.description,
+        b.active,
+        b.created_by,
+        b.created,
+        b.package_name,
+        b.version,
+        v.preview_path,
+        v.material_path,
+        v.qiniu_path,
+        v.material_size,
+        v.file_kind,
+        v.play_second,
+        v.original,
+        mt.name as file_kind_name
+        from
+        c_material_business b
+        LEFT JOIN c_material v ON v.c_material_id = b.c_material_id
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        where b.type = 0
+        <if test="orgId != null">
+            AND b.ad_org_id = #{orgId}
+        </if>
+        <if test="nowDate != null">
+            AND b.time_start &lt;= #{nowDate} AND b.time_end &gt;= #{nowDate}
+        </if>
+        order by b.c_business_id desc limit 1 offset 0)
+        <if test="type == 1">
+            UNION ALL
+            (select
+            b1.c_business_id,
+            b1.c_material_id,
+            vp.ad_client_id,
+            vp.ad_org_id,
+            b1.r_table_id,
+            b1.kind,
+            vp.time_start,
+            vp.time_end,
+            b1.type,
+            vp.description,
+            b1.active,
+            b1.created_by,
+            b1.created,
+            b1.package_name,
+            b1.version,
+            v1.preview_path,
+            v1.material_path,
+            v1.qiniu_path,
+            v1.material_size,
+            v1.file_kind,
+            v1.play_second,
+            v1.original,
+            mt1.name as file_kind_name
+            from
+            c_material_publish vp
+            LEFT JOIN c_material_business b1 ON b1.c_business_id = vp.c_business_id
+            LEFT JOIN c_material v1 ON v1.c_material_id = b1.c_material_id
+            LEFT JOIN c_material_type mt1 ON v1.file_kind = mt1.c_material_type_id
+            where b1.type = 1 AND vp.active = 1
+            <if test="orgId != null">
+                AND vp.ad_org_id = #{orgId}
+            </if>
+            <if test="nowDate != null">
+                AND vp.time_start &lt;= #{nowDate} AND vp.time_end &gt;= #{nowDate}
+            </if>
+            order by vp.c_material_publish_id desc limit 30 offset 0)
+        </if>
+    </select>
+
+    <!-- 查询木爷Bin升级文件素材list，type=1 -->
+    <select id="getBinEntities" resultMap="materialBusinessResult">
+        SELECT b.*,
+        mt.name as file_kind_name
+        FROM
+        c_material_business b
+        LEFT JOIN c_material v ON v.c_material_id = b.c_material_id
+        RIGHT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id AND mt.name=#{fileKindName}
+        WHERE b.type = 1
+        ORDER BY b.c_business_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_material_business(
+        c_business_id,
+        c_material_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        kind,
+        time_start,
+        time_end,
+        type,
+        description,
+        created_by,
+        created,
+        updated_by,
+        updated,
+        package_name,
+        version,
+        active
+        ) values (
+        #{materialBusinessId},
+        #{materialId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{kind},
+        #{timeStart},
+        #{timeEnd},
+        #{type},
+        #{description},
+        #{createdBy},
+        #{created},
+        #{updatedBy},
+        #{updated},
+        #{packageName},
+        #{version},
+        #{active}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_material_business
+        set
+        <if test="kind != null">
+            kind = #{kind},
+        </if>
+        <if test="timeStart != null">
+            time_start = #{timeStart},
+        </if>
+        <if test="timeEnd != null">
+            time_end = #{timeEnd},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="materialId != null">
+            c_material_id = #{materialId},
+        </if>
+        <if test="packageName != null">
+            package_name = #{packageName},
+        </if>
+        <if test="version != null">
+            version = #{version},
+        </if>
+        <if test="active != null">
+            active = #{active},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+         updated = #{updated}
+        where
+        c_business_id = #{materialBusinessId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_material_business
+        where c_business_id = #{materialBusinessId}
+    </delete>
+    
+</mapper>

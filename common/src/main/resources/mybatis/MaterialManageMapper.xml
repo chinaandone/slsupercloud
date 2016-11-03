@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MaterialManageDao">
+
+    <resultMap id="materialResult" type="MaterialDTView">
+        <result property="materialId" column="c_material_id"/>
+        <result property="previewPath" column="preview_path"/>
+        <result property="materialPath" column="material_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="playSecond" column="play_second"/>
+        <result property="materialSize" column="material_size"/>
+        <result property="fileKindName" column="file_kind_name"/>
+        <result property="description" column="description"/>
+        <result property="original" column="original"/>
+        <result property="created" column="created"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_materialList" resultMap="materialResult">
+        select v.*,mt.name as file_kind_name
+        from c_material v
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        where v.active = 1
+        <if test="orgId != null">
+            <if test="type == 0">
+                and v.ad_org_id = #{orgId}
+            </if>
+        </if>
+        <if test="type != null">
+            and v.type = #{type}
+        </if>
+        order by v.c_material_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_materialList" resultType="int">
+        select count(1) from c_material v where v.active = 1
+        <if test="orgId != null">
+            <if test="type == 0">
+                and v.ad_org_id = #{orgId}
+            </if>
+        </if>
+        <if test="type != null">
+            and v.type = #{type}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="materialResult">
+        select v.*,mt.name as file_kind_name
+        from c_material v
+        LEFT JOIN c_material_type mt ON v.file_kind = mt.c_material_type_id
+        where v.active = 1
+        <if test="materialId != null">
+          AND v.c_material_id = #{materialId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="materialResult">
+        (select v.*
+        from c_material v
+        where v.active = 1 AND v.type = 0
+        <if test="orgId != null">
+            AND v.ad_org_id = #{orgId}
+        </if>
+        order by v.c_material_id desc limit 1 offset 0)
+        <if test="type == 1">
+            UNION ALL
+            (select v1.*
+            from c_material v1
+            where v1.active = 1 AND v1.type = 1
+            order by v1.c_material_id desc limit 100 offset 0)
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_material(
+        c_material_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        material_path,
+        qiniu_path,
+        preview_path,
+        play_second,
+        material_size,
+        type,
+        file_kind,
+        description,
+        original,
+        created_by,
+        created,
+        updated_by,
+        updated
+        ) values (
+        #{materialId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{materialPath},
+        #{qiniuPath},
+        #{previewPath},
+        #{playSecond},
+        #{materialSize},
+        #{type},
+        #{fileKind},
+        #{description},
+        #{original},
+        #{createdBy},
+        #{created},
+        #{updatedBy},
+        #{updated}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_material
+        set
+        <if test="previewPath != null">
+            preview_path = #{previewPath},
+        </if>
+        <if test="materialPath != null">
+            material_path = #{materialPath},
+        </if>
+        <if test="qiniuPath != null">
+            qiniu_path = #{qiniuPath},
+        </if>
+        <if test="playSecond != null">
+            play_second = #{playSecond},
+        </if>
+        <if test="materialSize != null">
+            material_size = #{materialSize},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="original != null">
+            original = #{original},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+         updated = #{updated}
+        where
+        c_material_id = #{materialId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_material
+        where c_material_id = #{materialId}
+    </delete>
+    
+</mapper>

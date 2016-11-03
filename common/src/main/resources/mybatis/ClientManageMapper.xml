@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.ClientManageDao">
+
+    <resultMap id="clientResult" type="Client">
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updated" column="updated"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_clientList" resultMap="clientResult">
+        select p.* from ad_client p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="searchValue != null">
+            AND p.name like CONCAT('%','${searchValue}','%' )
+        </if>
+        order by p.ad_client_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+          limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_clientList" resultType="int">
+        select count(1) from ad_client p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="searchValue != null">
+            AND p.name like CONCAT('%','${searchValue}','%' )
+        </if>
+        <if test="clientName != null">
+            AND p.name = #{clientName}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="clientResult">
+        select p.* from ad_client p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+    </select>
+
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="clientResult">
+        select p.*
+            from ad_client p
+            where p.active = 1
+        <if test="clientId != null">
+              AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="searchValue != null">
+            AND p.name like CONCAT('%','${searchValue}','%' )
+        </if>
+        order by p.ad_client_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into ad_client(
+        ad_client_id,
+        ad_org_id,
+        name,
+        description,
+        created_by,
+        created,
+        updated_by,
+        updated
+        ) values (
+        #{clientId},
+        #{orgId},
+        #{name},
+        #{description},
+        #{createdBy},
+        #{created},
+        #{updatedBy},
+        #{updated}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update ad_client
+        set
+        <if test="name != null">
+            name = #{name},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <!--if test="active != null">
+            active = #{active},
+        </if-->
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        ad_client_id = #{clientId}
+    </update>
+
+</mapper>

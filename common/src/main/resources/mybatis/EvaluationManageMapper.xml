@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.EvaluationManageDao">
+
+    <resultMap id="evaluationResult" type="Evaluation">
+        <result property="evaluationId" column="c_evaluation_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="tableId" column="r_table_id"/>
+        <result property="feelWhole" column="feel_whole"/>
+        <result property="feelFlavor" column="feel_flavor"/>
+        <result property="feelService" column="feel_service"/>
+        <result property="feelEnvironment" column="feel_environment"/>
+        <result property="mealsRemark" column="meals_remark"/>
+        <result property="deviceRemark" column="device_remark"/>
+        <result property="timeSecond" column="time_second"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="clientName" column="client_name"/>
+        <result property="orgName" column="org_name"/>
+        <result property="tableName" column="table_name"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_evaluationList" resultMap="evaluationResult">
+        select e.c_evaluation_id,e.ad_client_id,e.ad_org_id,e.r_table_id,
+        e.feel_whole/2 as feel_whole,
+        e.feel_flavor/2 as feel_flavor,
+        e.feel_service/2 as feel_service,
+        e.feel_environment/2 as feel_environment,
+        e.meals_remark,
+        e.device_remark,
+        UNIX_TIMESTAMP(e.time_second)*1000 as time_second,e.active,e.created_by,e.created,
+        e.updated_by,e.updated,
+        o.name AS org_name,cl.name AS client_name,r.name AS table_name
+        from c_evaluation e
+        LEFT JOIN ad_org o ON o.ad_org_id = e.ad_org_id
+        LEFT JOIN ad_client cl ON cl.ad_client_id = e.ad_client_id
+        LEFT JOIN r_table r ON r.r_table_id = e.r_table_id
+        where e.active = 1
+        <if test="begin != null and end != null">
+          AND (e.time_second BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="orgId != null">
+            and e.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            and e.ad_client_id = #{clientId}
+        </if>
+        <if test="tableId != null">
+            and e.r_table_id = #{tableId}
+        </if>
+        order by e.c_evaluation_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+            limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_evaluationList" resultType="int">
+        select count(1) from c_evaluation e where e.active = 1
+        <if test="begin != null and end != null">
+          AND (e.time_second BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="orgId != null">
+            and e.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            and e.ad_client_id = #{clientId}
+        </if>
+        <if test="tableId != null">
+            and e.r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="evaluationResult">
+        select e.*
+        from c_evaluation e where 1 = 1
+        <if test="evaluationId != null">
+          AND e.c_evaluation_id = #{evaluationId}
+        </if>
+        <if test="tableId != null">
+            AND e.r_table_id = #{tableId}
+        </if>
+        ORDER BY e.time_second desc limit 1 offset 0
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_evaluation(
+        c_evaluation_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        feel_whole,
+        feel_flavor,
+        feel_service,
+        feel_environment,
+        meals_remark,
+        device_remark,
+        time_second,
+        created_by,
+        created
+        ) values (
+        #{evaluationId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{feelWhole},
+        #{feelFlavor},
+        #{feelService},
+        #{feelEnvironment},
+        #{mealsRemark},
+        #{deviceRemark},
+        #{timeSecond},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_evaluation
+        set
+         ad_client_id = #{clientId},
+         ad_org_id = #{orgId},
+         feel_whole = #{feelWhole},
+         feel_flavor = #{feelFlavor},
+         feel_service = #{feelService},
+         feel_environment = #{feelEnvironment},
+         meals_remark = #{mealsRemark},
+         device_remark = #{deviceRemark},
+         time_second = #{timeSecond},
+         updated_by = #{updatedBy},
+         updated = #{updated}
+        where
+        c_evaluation_id = #{evaluationId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_evaluation
+        where c_evaluation_id = #{evaluationId}
+    </delete>
+
+    <!-- 获取评分平均值 -->
+    <select id="getAverage" resultMap="evaluationResult">
+        select
+--         t.c_evaluation_id,
+        <if test="clientId != null">
+            t.ad_client_id,
+        </if>
+        <if test="orgId != null">
+            t.ad_org_id,
+        </if>
+        <if test="tableId != null">
+            t.r_table_id,
+        </if>
+        <!--因为存的参数放大了20倍，我们除以2后给前端，前端除以10即可-->
+        AVG(feel_whole)/2 as feel_whole,
+        AVG(feel_service)/2 as feel_service,
+        AVG(feel_flavor)/2 as feel_flavor,
+        AVG(feel_environment)/2 as feel_environment
+        from cleverm01.c_evaluation t
+        <where>
+            <if test="clientId != null">
+                t.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                AND t.ad_org_id = #{orgId}
+            </if>
+            <if test="tableId != null">
+                AND t.r_table_id = #{tableId}
+            </if>
+        </where>
+        <if test="clientId != null or orgId != null or tableId != null">
+            group by
+--             t.c_evaluation_id,
+            feel_whole,
+            feel_service,
+            feel_flavor,
+            feel_environment
+        </if>
+        <if test="clientId != null">
+            ,t.ad_client_id
+        </if>
+        <if test="clientId != null and orgId !=null">
+            ,
+        </if>
+        <if test="orgId != null">
+            t.ad_org_id
+        </if>
+        <if test="tableId != null and orgId !=null">
+            ,
+        </if>
+        <if test="tableId != null">
+            t.r_table_id
+        </if>
+
+    </select>
+</mapper>

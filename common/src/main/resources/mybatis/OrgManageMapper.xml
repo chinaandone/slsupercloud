@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.OrgManageDao">
+
+    <resultMap id="orgResult" type="Org">
+        <result property="clientId" column="ad_client_id"/>
+        <result property="clientName" column="client_name"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="locationId" column="c_location_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="phone" column="phone"/>
+        <result property="fax" column="fax"/>
+        <result property="dateFound" column="date_found"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updated" column="updated"/>
+    </resultMap>
+
+    <!-- 根据displayAll的值决定分页/不分页查询 -->
+    <select id="list_orgList" resultMap="orgResult">
+        select p.*,cl.name as client_name
+        from ad_org p
+        LEFT JOIN ad_client cl ON cl.ad_client_id = p.ad_client_id
+        where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        order by p.ad_org_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+          limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_orgList" resultType="int">
+        select count(1)
+        from ad_org p
+        LEFT JOIN ad_client cl ON cl.ad_client_id = p.ad_client_id
+        where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="orgName != null">
+            AND p.name = #{orgName}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="orgResult">
+        select p.*,cl.name as client_name
+        from ad_org p
+        LEFT JOIN ad_client cl ON cl.ad_client_id = p.ad_client_id
+        where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+    </select>
+
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="orgResult">
+        select p.*,cl.name as client_name
+        from ad_org p
+        LEFT JOIN ad_client cl ON cl.ad_client_id = p.ad_client_id
+        where p.active = 1
+        <if test="orgId != null">
+              AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+              AND p.ad_client_id = #{clientId}
+        </if>
+        order by p.ad_org_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into ad_org(
+        ad_client_id,
+        ad_org_id,
+        c_location_id,
+        name,
+        description,
+        phone,
+        fax,
+        date_found,
+        created_by,
+        created
+        ) values (
+        #{clientId},
+        #{orgId},
+        #{locationId},
+        #{name},
+        #{description},
+        #{phone},
+        #{fax},
+        #{dateFound},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update ad_org
+        set
+        <if test="name != null">
+            name = #{name},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="phone != null">
+            phone = #{phone},
+        </if>
+        <if test="fax != null">
+            fax = #{fax},
+        </if>
+        <!--if test="active != null">
+            active = #{active},
+        </if-->
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        ad_org_id = #{orgId}
+    </update>
+
+    <!-- 删除,把active标记为0，不启用即可，不删除原始数据，后期只要启用就可以了 -->
+    <!--delete id="removeEntity">
+        delete from ad_org
+        where ad_org_id = #{orgId}
+    </delete-->
+
+</mapper>

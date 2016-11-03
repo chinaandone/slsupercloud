@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.VideoPublishManageDao">
+
+    <resultMap id="videoPublishResult" type="VideoPublish">
+    <result property="videoPublishId" column="c_video_publish_id"/>
+    <result property="videoId" column="c_video_id"/>
+    <result property="businessId" column="c_business_id"/>
+    <result property="clientId" column="ad_client_id"/>
+    <result property="orgId" column="ad_org_id"/>
+    <result property="kind" column="kind"/>
+    <result property="timeStart" column="time_start"/>
+    <result property="timeEnd" column="time_end"/>
+    <result property="publishTime" column="publish_time"/>
+    <result property="previewPath" column="preview_path"/>
+    <result property="videoPath" column="video_path"/>
+    <result property="original" column="original"/>
+    <result property="orgName" column="org_name"/>
+    <result property="description" column="description"/>
+    <result property="playFreq" column="play_freq"/>
+</resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_videoPublishList" resultMap="videoPublishResult">
+        select
+        <if test="orgId == null">
+            vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vp.kind,v.c_video_id,vp.play_freq
+        </if>
+        <if test="orgId != null">
+            vp.c_video_publish_id, vp.c_business_id, vp.ad_client_id, vp.ad_org_id, v.original, vp.description,
+            vp.publish_time, vp.time_start, vp.time_end, v.preview_path, v.video_path, o.name as org_name,vp.kind,v.c_video_id,vp.play_freq
+        </if>
+        from c_video_publish vp
+        LEFT JOIN c_video_business vb ON vb.c_business_id = vp.c_business_id AND vb.type = 1 AND vb.active = 1
+        LEFT JOIN c_video v ON v.c_video_id = vb.c_video_id
+        LEFT JOIN ad_org o ON o.ad_org_id = vp.ad_org_id
+        where vp.active = 1
+        <if test="clientId != null">
+            and vp.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and vp.ad_org_id = #{orgId}
+        </if>
+        <if test="businessId != null">
+            and vp.c_business_id = #{businessId}
+        </if>
+        <!--<if test="description != null">-->
+            <!--and vp.description = #{description}-->
+        <!--</if>-->
+        <if test="publishTime != null">
+            and vp.publish_time = #{publishTime}
+        </if>
+        <if test="kind != null">
+            and vp.kind = #{kind}
+        </if>
+        <if test="orgId == null">
+            GROUP BY vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vp.kind,vp.play_freq
+        </if>
+        order by vp.publish_time desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_videoPublishList" resultType="int">
+        select count(1)
+        from(
+            select
+            <if test="orgId == null">
+                vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vp.kind,v.c_video_id,vp.play_freq
+            </if>
+            <if test="orgId != null">
+                vp.c_video_publish_id, vp.c_business_id, vp.ad_client_id, vp.ad_org_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,
+                v.preview_path, v.video_path, o.name as org_name,vp.kind,v.c_video_id,vp.play_freq
+            </if>
+            from c_video_publish vp
+            LEFT JOIN c_video_business vb ON vb.c_business_id = vp.c_business_id AND vb.type = 1 AND vb.active = 1
+            LEFT JOIN c_video v ON v.c_video_id = vb.c_video_id
+            LEFT JOIN ad_org o ON o.ad_org_id = vp.ad_org_id
+            where vp.active = 1
+            <if test="clientId != null">
+                and vp.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and vp.ad_org_id = #{orgId}
+            </if>
+            <if test="businessId != null">
+                and vp.c_business_id = #{businessId}
+            </if>
+            <!--<if test="description != null">-->
+                <!--and vp.description = #{description}-->
+            <!--</if>-->
+            <if test="publishTime != null">
+                and vp.publish_time = #{publishTime}
+            </if>
+            <if test="kind != null">
+                and vp.kind = #{kind}
+            </if>
+            <if test="orgId == null">
+                GROUP BY vp.c_business_id, v.original, vp.description, vp.publish_time, vp.time_start, vp.time_end,vp.kind,vp.play_freq
+            </if>
+        ) t
+    </select>
+
+    <!-- 查询某店铺下已推总数 -->
+    <select id="countExist" resultType="int">
+        select count(1)
+        from c_video_publish vp
+        where vp.active = 1
+        <if test="clientId != null">
+            and vp.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and vp.ad_org_id = #{orgId}
+        </if>
+        <if test="kind != null">
+            and vp.kind = #{kind}
+        </if>
+    </select>
+
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_video_publish(
+        c_video_publish_id,
+        c_business_id,
+        ad_client_id,
+        ad_org_id,
+        kind,
+        time_start,
+        time_end,
+        publish_time,
+        description,
+        play_freq,
+        created_by,
+        created
+        ) values (
+        #{videoPublishId},
+        #{businessId},
+        #{clientId},
+        #{orgId},
+        #{kind},
+        #{timeStart},
+        #{timeEnd},
+        #{publishTime},
+        #{description},
+        #{playFreq},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 批量删除，假删除 -->
+    <delete id="removeEntity">
+--         delete from c_video_publish
+        update c_video_publish
+        set active = 0
+        where c_business_id = #{businessId}
+        AND description = #{description}
+        AND publish_time = #{publishTime}
+        <if test="clientId != null">
+            AND ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ad_org_id = #{orgId}
+        </if>
+        <if test="videoPublishId != null">
+            AND c_video_publish_id = #{videoPublishId}
+        </if>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.TableInfoDao">
+
+    <resultMap id="TableInfoResult" type="TableInfo">
+        <result property="id" column="r_table_id"/>
+        <result property="name" column="name"/>
+        <result property="typeId" column="r_table_type_id"/>
+        <result property="textId" column="text_id"/>
+        <result property="scanCode" column="scan_code"/>
+    </resultMap>
+
+    <select id="queryAllTableInfoByShopId" resultMap="TableInfoResult">
+        select a.* from r_table a where a.active=1 and a.ad_org_id=#{shopId}
+    </select>
+
+</mapper>

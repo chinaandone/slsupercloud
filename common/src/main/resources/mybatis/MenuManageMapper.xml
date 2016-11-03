@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.MenuManageDao">
+
+    <resultMap id="MenuInfoViewResult" type="MenuInfoView">
+        <result property="id" column="id"/>
+        <result property="menuId" column="menu_id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="unit" column="unit"/>
+        <result property="menuCode" column="menu_code"/>
+        <result property="photo" column="photo"/>
+        <result property="scanCode" column="scan_code"/>
+        <result property="shopId" column="ad_client_id"/>
+        <result property="subMenuId" column="sub_menu_id"/>
+    </resultMap>
+
+    <select id="queryAllMenuInfoByShopId" resultMap="MenuInfoViewResult">
+        select a.* from r_menu a where a.status=1 and a.ad_org_id=#{shopId}
+    </select>
+
+    <insert id="addEntity">
+        insert into r_menu(menu_id,ad_org_id,name,price,unit,menu_code,sub_menu_id,scan_code,photo,status,create_time,update_time)
+        values(#{menuId},#{shopId},#{name},#{price},#{unit},#{menuCode},#{subMenuId},#{scanCode},#{photo},#{status},now(),now());
+        <selectKey resultType="long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+    </insert>
+
+    <update id="updatePhoto">
+        update r_menu set photo = #{photo} where id = #{id}
+    </update>
+
+    <update id="updateMenu">
+        update r_menu set scan_code = #{scanCode},
+        name = #{name},
+        photo = #{photo},
+        price = #{price},
+        status = #{status},
+        menu_id = #{menuId},
+        sub_menu_id = #{subMenuId},
+        update_time = #{updateTime} where id = #{id}
+    </update>
+
+    <delete id="deleteByShopId">
+        DELETE from r_menu where ad_org_id = #{shopId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-3.0.xsd ">
+    <bean id="configLoader"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:api.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <mvc:annotation-driven/>
+
+    <!--aop用户请求日志,在springMVC里需要加上这一行aop才能起作用-->
+    <aop:aspectj-autoproxy/>
+
+    <context:component-scan base-package="com.clever.api.controller" />
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="resolveLazily" value="true"/>
+        <!-- <property name="maxUploadSize" value="20000"/> -->
+        <property name="maxUploadSize" value="52428800"/>
+    </bean>
+
+    <bean id="config" class="com.clever.api.util.Config" scope="singleton">
+        <property name="apiUrlPrefix" value="${api_url_prefix}"/>
+    </bean>
+
+    <!-- 线程池-->
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="10" />
+        <property name="queueCapacity" value="50" />
+    </bean>
+    <task:annotation-driven executor="taskExecutor" />
+
+    <!-- 访问拦截  -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**/**"/>
+            <bean class="com.clever.api.interceptor.AccessLogControlInteceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+</beans>

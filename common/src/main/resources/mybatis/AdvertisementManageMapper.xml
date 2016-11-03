@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.AdvertisementManageDao">
+
+    <resultMap id="pictrueResult" type="Pictrue">
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <result property="original" column="original"/>
+        <result property="kind" column="kind"/>
+    </resultMap>
+
+    <resultMap id="advertisementResult" type="Advertisement">
+        <result property="advertisementId" column="c_advertisement_id"/>
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="pictrueId" column="c_pictrue_id"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="title" column="title"/>
+        <result property="timeStart" column="time_start"/>
+        <result property="timeEnd" column="time_end"/>
+        <result property="description" column="description"/>
+        <result property="active" column="active"/>
+        <result property="pictruePath" column="pictrue_path"/>
+        <result property="qiniuPath" column="qiniu_path"/>
+        <result property="advertisementMainId" column="c_advertisement_main_id"/>
+        <result property="picOrinName" column="original"/>
+        <!--<association property="pictrue" javaType="Pictrue" resultMap="pictrueResult"/>-->
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_advertisementList" resultMap="advertisementResult">
+        select p.pictrue_path, p.qiniu_path,
+        a.* from
+        c_advertisement a
+        LEFT JOIN c_pictrue p ON a.c_pictrue_id = p.c_pictrue_id
+        where a.active = 1
+        <if test="orgId != null">
+            and a.ad_org_id = #{orgId}
+        </if>
+        order by a.c_advertisement_id desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_advertisementList" resultType="int">
+        select count(1) from c_advertisement a
+        LEFT JOIN c_pictrue p ON a.c_pictrue_id = p.c_pictrue_id
+        where a.active = 1
+        <if test="orgId != null">
+            and a.ad_org_id = #{orgId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="advertisementResult">
+        select a.*, p.pictrue_path, p.qiniu_path
+        from c_advertisement a
+        LEFT JOIN c_pictrue p
+        ON a.c_pictrue_id = p.c_pictrue_id
+        where a.active = 1
+        <if test="rollMainId != null">
+          AND a.c_roll_main_id = #{rollMainId}
+        </if>
+        <if test="advertisementId != null">
+            AND a.c_advertisement_id = #{advertisementId}
+        </if>
+    </select>
+
+    <!-- 查询list,暂时安卓api那边用，查询在有效期内的广告 -->
+    <select id="getEntities" resultMap="advertisementResult">
+        select
+        ar.c_advertisement_id,
+        a.c_roll_main_id,
+        ar.ad_client_id,
+        ar.ad_org_id,
+        a.c_pictrue_id,
+        ar.order_seq,
+        ar.time_start,
+        ar.time_end,
+        ar.title,
+        a.description,
+        p.pictrue_path,
+        p.qiniu_path,
+        p.original,
+        a.active
+        from
+            (select
+                am.ad_client_id,
+                am.ad_org_id,
+                am.c_advertisement_id,
+                am.order_seq,
+                am.title,
+                am.time_start,
+                am.time_end
+            from c_advertisement_roll_main am
+                WHERE am.ad_org_id = #{value}
+                AND (now() BETWEEN am.time_start AND am.time_end)
+            GROUP BY am.ad_client_id,
+                    am.ad_org_id,
+                    am.c_advertisement_id,
+                    am.order_seq,
+                    am.title,
+                    am.time_start,
+                    am.time_end ) ar
+        LEFT JOIN c_advertisement a on ar.c_advertisement_id = a.c_advertisement_id
+        LEFT JOIN c_pictrue p ON a.c_pictrue_id = p.c_pictrue_id
+        where a.active = 1
+        <if test="value != null">
+            and ar.ad_org_id = #{value}
+        </if>
+        order by ar.order_seq asc limit 5 offset 0;
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_advertisement(
+        c_advertisement_id,
+        c_roll_main_id,
+        ad_client_id,
+        ad_org_id,
+        c_pictrue_id,
+        order_seq,
+        title,
+        time_start,
+        time_end,
+        description,
+        created_by,
+        created
+        ) values (
+        #{advertisementId},
+        #{rollMainId},
+        #{clientId},
+        #{orgId},
+        #{pictrueId},
+        #{orderSeq},
+        #{title},
+        #{timeStart},
+        #{timeEnd},
+        #{description},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update c_advertisement
+        set
+        <if test="pictrueId != null">
+            c_pictrue_id = #{pictrueId},
+        </if>
+        <if test="rollMainId != null">
+            c_roll_main_id = #{rollMainId},
+        </if>
+        <if test="orderSeq != null">
+            order_seq = #{orderSeq},
+        </if>
+        <if test="title != null">
+            title = #{title},
+        </if>
+        <if test="timeStart != null">
+            time_start = #{timeStart},
+        </if>
+        <if test="timeEnd != null">
+            time_end = #{timeEnd},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        c_advertisement_id = #{advertisementId}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from c_advertisement
+        where c_advertisement_id = #{advertisementId}
+    </delete>
+    
+</mapper>

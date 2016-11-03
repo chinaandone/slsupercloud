@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.TableTypeManageDao">
+
+    <resultMap id="tableTypeResult" type="TableTypeBean">
+        <result property="tableTypeId" column="r_table_type_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="capacity" column="capacity"/>
+        <result property="minimum" column="minimum"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updated" column="updated"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="clientId" column="ad_client_id"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_tableTypeList" resultMap="tableTypeResult">
+        select p.* from r_table_type p where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        order by p.r_table_type_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+          limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_tableTypeList" resultType="int">
+        select count(1) from r_table_type p where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="tableTypeName != null">
+            AND p.name = #{tableTypeName}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="tableTypeResult">
+        select p.* from r_table_type p where p.active = 1
+        AND p.r_table_type_id = #{tableTypeId}
+    </select>
+
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="tableTypeResult">
+        select p.* from r_table_type p where p.active = 1
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        order by p.r_table_type_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into r_table_type(
+        r_table_type_id,
+        ad_client_id,
+        ad_org_id,
+        name,
+        description,
+        capacity,
+        minimum,
+        created_by,
+        created
+        ) values (
+        #{tableTypeId},
+        #{clientId},
+        #{orgId},
+        #{name},
+        #{description},
+        #{capacity},
+        #{minimum},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update r_table_type
+        set
+        <if test="name != null">
+            name = #{name},
+        </if>
+        <if test="description != null">
+            description = #{description},
+        </if>
+        <if test="capacity != null">
+            capacity = #{capacity},
+        </if>
+        <if test="minimum != null">
+            minimum = #{minimum},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        r_table_type_id = #{tableTypeId}
+    </update>
+
+</mapper>

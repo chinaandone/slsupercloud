@@ -1,0 +1,106 @@
+<div ng-hide="vm.list" class="alert alert-info"><i class="fa fa-warning"></i>没有可以显示的大学士！</div>
+<div class="col-xs-12 searchbg" ng-if="vm.list">
+    <select>
+        <option value="0" selected="selected">选择机器</option>
+        <option value="{{c.index}}" ng-repeat="c in vm.cooky">{{c.name}}</option>
+    </select>
+    <div class="control-group monitors">
+        <ul class="monitor_search">
+            <li class="col-xs-3 checkbox" ng-repeat="l in vm.list">
+                <label><input ng-model="l.checked" name="action" type="checkbox" class="ace" value="{{l.action}}"><span class="lbl">{{l.name}}</span></label>
+            </li>
+        </ul>
+    </div>
+    <div class="col-xs-12">
+        <button class="btn btn-sm btn-danger m-b m-r" ng-click="vm.get()"><i class="ace-icon fa fa-search"></i>查 询</button>
+    </div>
+</div>
+
+<div class="col-xs-12" ng-if="vm.list">
+    <ul class="monitor_co">
+        <li class="col-xs-3" ng-repeat="l in vm.search_list">
+            <div class="widget-box">
+                <div class="widget-header">
+                    <h6>{{l.name}}</h6>
+                    <span class="widget-toolbar">
+                        <a ng-click="copy()" data-action="settings"><i class="fa fa-copy"></i></a>
+                        <a ng-click="reload()" data-action="reload"><i class="fa fa-refresh"></i></a>
+                        <a ng-click="close()" data-action="close"><i class="fa fa-remove"></i></a>
+                    </span>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <ng-include src="l.type"></ng-include>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<script type="text/ng-template" id="1001">
+    <div class="col-xs-6 switch" ng-class="{true: 'switch-on', false: 'switch-off'}[l.data]"><span class="btn btn-success btn-sm tooltip-success">ON</span><span class="btn btn-sm">OFF</span></div>
+</script>
+
+<script type="text/ng-template" id="1002">
+    <ul>
+        <li ng-repeat="d in l.data">
+            <div class="col-xs-6">{{d.checkName}}</div>
+            <div class="col-xs-6 switch" ng-class="{true: 'switch-on', false: 'switch-off'}[d.status]"><span class="btn btn-success btn-sm tooltip-success">ON</span><span class="btn btn-sm">OFF</span></div>
+        </li>
+    </ul>
+</script>
+
+<script type="text/ng-template" id="1003">
+    <div monitor data-twidth="160" data-theight="100" data-text="{{l.data}}%" data-info="{{l.name}}" data-width="7" data-fontsize="18" data-percent="{{l.data}}" data-fgcolor="#7ea568" data-bgcolor="#eee" data-type="half" data-fill="#f1f1f1"></div>
+</script>
+
+<script type="text/ng-template" id="1004">
+    <ul class="tleft">
+        <li ng-repeat="(k,v) in l.data">
+            <b>{{k}}</b>：{{v}}
+        </li>
+    </ul>
+</script>
+
+<script type="text/ng-template" id="1005">
+    <div monitor data-twidth="130" data-text="{{l.data.power}}%" data-info="电量" data-width="9" data-fontsize="18" data-percent="{{l.data.power}}" data-fgcolor="#61a9dc" data-bgcolor="#eee"></div>
+</script>
+
+<script type="text/ng-template" id="1006">
+    <div class="progress" data-percent="{{l.data.currentRAM/l.data.totalRAM*100 | number:0}}%">
+        <div class="progress-bar progress-bar-success" style="width: {{l.data.currentRAM/l.data.totalRAM*100}}%;"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="1007">
+    <div class="progress" data-percent="{{l.data.currentROM/l.data.totalROM*100 | number:0}}%">
+        <div class="progress-bar progress-bar-success" style="width: {{l.data.currentROM/l.data.totalROM*100}}%;"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="1008">
+    <div class="progress progress-striped active" data-percent="{{l.data}}%">
+        <div class="progress-bar progress-bar-success" style="width: {{l.data}}%;"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="1009">
+    <div><img ng-src="{{l.data}}" /></div>
+</script>
+
+<script type="text/ng-template" id="1010">
+    <div monitor data-twidth="130" data-text="{{l.data.statusValue}}%" data-info="灵敏度" data-width="9" data-fontsize="18" data-percent="{{l.data.statusValue}}" data-fgcolor="#61a9dc" data-bgcolor="#eee"></div>
+</script>
+
+<script type="text/ng-template" id="1011">
+    <div monitor data-twidth="130" data-text="{{l.data.statusValue}}%" data-info="灵敏度" data-width="9" data-fontsize="18" data-percent="{{l.data.statusValue}}" data-fgcolor="#61a9dc" data-bgcolor="#eee"></div>
+</script>
+
+<script type="text/ng-template" id="1012">
+    <div>当前使用率</div>
+</script>
+
+<script type="text/ng-template" id="1013">
+    <div><img ng-src="{{l.data}}" /></div>
+</script>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.AccessLogManageDao">
+    <resultMap id="accessLogResult" type="AccessLog">
+        <result property="actionPath" column="action_path"/>
+        <result property="pathName" column="path_name"/>
+        <result property="accessTime" column="access_time"/>
+    </resultMap>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_access_log(
+        action_path,
+        path_name,
+        access_time,
+        created_by,
+        created
+        ) values (
+        #{actionPath},
+        #{pathName},
+        #{accessTime},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+    
+</mapper>

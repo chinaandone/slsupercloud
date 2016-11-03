@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.RollPublishManageDao">
+
+    <resultMap id="rollPublishResult" type="RollPublish">
+        <result property="rollPublishId" column="c_roll_publish_id"/>
+        <result property="rollMainId" column="c_roll_main_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="title" column="title"/>
+        <result property="orderSeq" column="order_seq"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="orgName" column="org_name"/>
+    </resultMap>
+
+    <!-- 分页查询木爷推送过的活动 -->
+    <select id="list_rollPublishList" resultMap="rollPublishResult">
+            select
+            <if test="orgId == null">
+                r.c_roll_main_id, r.title, r.publish_time, r.start_time, r.end_time
+            </if>
+            <if test="orgId != null">
+                r.c_roll_publish_id, r.c_roll_main_id, r.ad_client_id, r.ad_org_id, r.title, r.publish_time, r.order_seq, r.start_time, r.end_time, o.name as org_name
+            </if>
+            from c_roll_publish r
+            LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+            where r.active = 1
+            <if test="clientId != null">
+                and r.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and r.ad_org_id = #{orgId}
+            </if>
+            <if test="rollMainId != null">
+                and r.c_roll_main_id = #{rollMainId}
+            </if>
+            <if test="title != null">
+                and r.title = #{title}
+            </if>
+            <if test="publishTime != null">
+                and r.publish_time = #{publishTime}
+            </if>
+            <if test="orgId == null">
+                GROUP BY r.c_roll_main_id, r.title, r.publish_time, r.start_time, r.end_time
+            </if>
+            order by r.publish_time desc limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询木爷推送过的活动总数 -->
+    <select id="count_rollPublishList" resultType="int">
+        select count(1)
+        FROM (
+            select
+            <if test="orgId == null">
+                r.c_roll_main_id, r.title, r.publish_time, r.start_time, r.end_time
+            </if>
+            <if test="orgId != null">
+                r.c_roll_publish_id, r.c_roll_main_id, r.ad_client_id, r.ad_org_id, r.title, r.publish_time, r.order_seq, r.start_time, r.end_time, o.name as org_name
+            </if>
+            from c_roll_publish r
+            LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+            where r.active = 1
+            <if test="clientId != null">
+                and r.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and r.ad_org_id = #{orgId}
+            </if>
+            <if test="rollMainId != null">
+                and r.c_roll_main_id = #{rollMainId}
+            </if>
+            <if test="title != null">
+                and r.title = #{title}
+            </if>
+            <if test="publishTime != null">
+                and r.publish_time = #{publishTime}
+            </if>
+            <if test="orgId == null">
+                GROUP BY r.c_roll_main_id, r.title, r.publish_time, r.start_time, r.end_time
+            </if>
+        ) t
+    </select>
+
+    <!-- 查询某店铺下已推总数 -->
+    <select id="countExist" resultType="int">
+        select count(1)
+        from c_roll_publish r
+        LEFT JOIN ad_org o ON o.ad_org_id = r.ad_org_id
+        where r.active = 1
+        <if test="clientId != null">
+            and r.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and r.ad_org_id = #{orgId}
+        </if>
+    </select>
+
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_roll_publish(
+        c_roll_publish_id,
+        c_roll_main_id,
+        ad_client_id,
+        ad_org_id,
+        title,
+        order_seq,
+        start_time,
+        end_time,
+        publish_time,
+        created_by,
+        created
+        ) values (
+        #{rollPublishId},
+        #{rollMainId},
+        #{clientId},
+        #{orgId},
+        #{title},
+        #{orderSeq},
+        #{startTime},
+        #{endTime},
+        #{publishTime},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+--         delete from c_roll_publish
+        update c_roll_publish
+        set active = 0
+        where c_roll_main_id = #{rollMainId}
+              AND title = #{title}
+              AND publish_time = #{publishTime}
+        <if test="clientId != null">
+            AND ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ad_org_id = #{orgId}
+        </if>
+        <if test="rollPublishId != null">
+            AND c_roll_publish_id = #{rollPublishId}
+        </if>
+    </delete>
+
+</mapper>

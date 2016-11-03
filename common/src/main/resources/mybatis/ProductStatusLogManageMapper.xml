@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.ProductStatusLogManageDao">
+
+    <resultMap id="productStatusLogResult" type="ProductStatusLog">
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updated" column="updated"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_productStatusLogList" resultMap="productStatusLogResult">
+        select p.* from c_product_status_log p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND p.r_table_id = #{tableId}
+        </if>
+        order by p.ad_client_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+          limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_productStatusLogList" resultType="int">
+        select count(1) from c_product_status_log p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND p.r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="productStatusLogResult">
+        select p.* from c_product_status_log p where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND p.r_table_id = #{tableId}
+        </if>
+    </select>
+
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="productStatusLogResult">
+        select p.*
+            from c_product_status_log p
+            where p.active = 1
+        <if test="clientId != null">
+            AND p.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND p.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND p.r_table_id = #{tableId}
+        </if>
+        order by p.ad_client_id desc
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_product_status_log(
+        ad_client_id,
+        ad_org_id,
+        created_by,
+        created,
+        updated_by,
+        updated,
+        product_status_log_id,
+        product_status_type_id,
+        c_computer_id,
+        board_no,
+        computer_type,
+        product_global_ip,
+        product_local_ip,
+        product_power,
+        r_table_id,
+        detail,
+        soft_version_code,
+        soft_version_name,
+        charging,
+        ram_status,
+        rom_status,
+        volume,
+        wifi_status,
+        c_pictrue_id,
+        mac_address,
+        qiniu_path,
+        pad_mode,
+        os_version,
+        log_time
+        ) values (
+        #{clientId},
+        #{orgId},
+        #{createdBy},
+        #{created},
+        #{updatedBy},
+        #{updated},
+        #{productStatusLogId},
+        #{productStatusTypeId},
+        #{computerId},
+        #{boardNo},
+        #{computerType},
+        #{productGlobalIp},
+        #{productLocalIp},
+        #{productPower},
+        #{tableId},
+        #{detail},
+        #{softVersionCode},
+        #{softVersionName},
+        #{chargeStatus},
+        #{ramStatus},
+        #{romStatus},
+        #{volume},
+        #{wifiStatus},
+        #{picId},
+        #{macAddress},
+        #{qiniuPath},
+        #{padMode},
+        #{OSVersion},
+        #{logTime}
+        )
+    </insert>
+
+</mapper>

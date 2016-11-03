@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.UploadAccessLogManageDao">
+
+    <resultMap id="uploadAccessLogResult" type="UploadAccessLog">
+        <!--<result property="uploadAccessId" column="c_upload_access_id"/>-->
+        <result property="clientId" column="ad_client_id"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="tableId" column="r_table_id"/>
+        <result property="actionId" column="action_id"/>
+        <result property="clickNum" column="click_num"/>
+        <result property="timePoit" column="time_poit"/>
+        <result property="timeStay" column="time_stay"/>
+        <result property="discription" column="discription"/>
+        <result property="levelSecondId" column="level_second_id"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="clientName" column="client_name"/>
+        <result property="orgName" column="org_name"/>
+        <result property="tableName" column="table_name"/>
+        <result property="actionName" column="action_name"/>
+        <result property="levelSecondName" column="level_second_name"/>
+    </resultMap>
+
+    <!-- 分页/不分页查询1级菜单点击次数、停留时间统计结果。太多的时候只显示前50个。-->
+    <select id="getLevel1Analysis" resultMap="uploadAccessLogResult">
+        SELECT
+        ca.action_name
+        <if test="group != null  and group == '0'.toString()">
+            ,sum(time_stay) as time_stay,count(1) as click_num
+        </if>
+        <if test="group != null  and group == '1'.toString()">
+            ,ual.level_second_id,ual.discription,o.name as org_name,cl.name as client_name,r.name as table_name,ual.time_stay,ual.click_num,ual.time_poit
+        </if>
+        FROM c_upload_access_log ual
+        LEFT JOIN ad_org o ON o.ad_org_id = ual.ad_org_id
+        <if test="clientId != null">
+            AND o.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND o.ad_org_id = #{orgId}
+        </if>
+        LEFT JOIN ad_client cl ON cl.ad_client_id = ual.ad_client_id
+        <if test="clientId != null">
+            AND cl.ad_client_id = #{clientId}
+        </if>
+        LEFT JOIN r_table r ON r.r_table_id = ual.r_table_id
+        <if test="clientId != null">
+            AND r.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND r.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND r.r_table_id = #{tableId}
+        </if>
+        LEFT JOIN c_upload_action ca ON ca.c_upload_action_id = ual.action_id
+        WHERE ual.active = 1
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="inList != null">
+            AND ual.action_id IN
+            <foreach collection="inList" item="inListId" index="index"
+                     open="(" close=")" separator=",">
+                #{inListId}
+            </foreach>
+        </if>
+        <if test="group != null and group == '0'.toString()">
+          group by
+            ca.action_name
+            order by ca.action_name ASC
+        </if>
+        <if test="group != null  and group == '1'.toString()">
+            order by ual.auto_id desc
+        </if>
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+            limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 分页/不分页查询2级菜单点击次数、停留时间统计结果。需要传入对应的1级菜单actionid，目前只有4,21,22才有二级数据。按结果停留时间长短排序，如果数据多分页取前十五个，多余的算其他 -->
+    <!-- 太多的时候只显示前50个。-->
+    <select id="getLevel2Analysis" resultMap="uploadAccessLogResult">
+        SELECT
+        ual.level_second_id
+        <if test="group != null  and group == '0'.toString()">
+          ,sum(time_stay) as time_stay,count(1) as click_num
+        </if>
+        <if test="group != null  and group == '1'.toString()">
+            ,ca.action_name,ual.discription,ual.time_poit,o.name as org_name,cl.name as client_name,r.name as table_name,ual.time_stay,ual.click_num
+        </if>
+        <if test="actionId != null and actionId == '4'.toString()">
+            ,clv2.action_name as level_second_name
+        </if>
+        <if test="actionId != null and (actionId == '21'.toString() or actionId == '22'.toString())">
+            ,cdt.title as level_second_name
+        </if>
+        <if test="actionId != null and actionId == '31'.toString()">
+            ,cvp.description as level_second_name
+        </if>
+        <!-- 目前云端奖券是存在tarot后台的，所以暂时只返回二级行为id，在tarot后台中可以返回奖券名称 -->
+        <if test="actionId != null and actionId == '36'.toString()">
+            ,ual.level_second_id as level_second_name
+        </if>
+        FROM c_upload_access_log ual
+        LEFT JOIN ad_org o ON o.ad_org_id = ual.ad_org_id
+        <if test="clientId != null">
+            AND o.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND o.ad_org_id = #{orgId}
+        </if>
+        LEFT JOIN ad_client cl ON cl.ad_client_id = ual.ad_client_id
+        <if test="clientId != null">
+            AND cl.ad_client_id = #{clientId}
+        </if>
+        LEFT JOIN r_table r ON r.r_table_id = ual.r_table_id
+        <if test="clientId != null">
+            AND r.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND r.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND r.r_table_id = #{tableId}
+        </if>
+        LEFT JOIN c_upload_action ca ON ca.c_upload_action_id = ual.action_id
+        <if test="actionId != null and actionId == '4'.toString()">
+            LEFT JOIN c_upload_second_action clv2 ON clv2.c_upload_second_action_id = ual.level_second_id
+        </if>
+        <if test="actionId != null and (actionId == '21'.toString() or actionId == '22'.toString())">
+            LEFT JOIN c_detail_text cdt ON cdt.c_roll_main_id = ual.level_second_id
+            RIGHT JOIN c_roll_main crm ON ual.level_second_id = crm.c_roll_main_id
+        </if>
+        <if test="actionId != null and actionId == '31'.toString()">
+            LEFT JOIN c_video_business cvb ON cvb.c_video_id = ual.level_second_id
+--          只有有推送记录的广告点击才是有效点击
+            RIGHT JOIN c_video_publish  cvp ON cvp.c_business_id = cvb.c_business_id
+              AND cvp.ad_org_id = ual.ad_org_id
+              AND (ual.time_poit BETWEEN cvp.time_start AND cvp.time_end)
+        </if>
+        WHERE ual.active = 1
+        AND ual.level_second_id IS NOT NULL
+        <if test="actionId != null and actionId == '21'.toString()">
+            AND crm.type = 1
+        </if>
+        <if test="actionId != null and actionId == '22'.toString()">
+            AND crm.type = 0
+        </if>
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="actionId != null and (actionId == '4'.toString() or actionId == '21'.toString() or actionId == '31'.toString() or actionId == '36'.toString()) ">
+            AND ual.action_id = #{actionId}
+        </if>
+        <if test="actionId != null and actionId == '22'.toString() ">
+            AND ual.action_id = 21
+        </if>
+        <if test="group != null  and group == '0'.toString()">
+          group by
+            ual.level_second_id
+            <!--ual.ad_client_id,ual.ad_org_id,ual.r_table_id,ual.time_poit,ual.discription,ual.active,ual.created_by,ual.created, ual.action_id,-->
+           <!--org_name,client_name,table_name,-->
+            <!--ca.action_name,-->
+            <!--time_stay,click_num-->
+            <if test="actionId != null and actionId == '4'.toString()">
+                ,level_second_name
+            </if>
+            <if test="actionId != null and (actionId == '21'.toString() or actionId == '22'.toString())">
+                ,level_second_name
+            </if>
+            <if test="actionId != null and actionId == '31'.toString()">
+                ,level_second_name
+            </if>
+            <if test="actionId != null and actionId == '36'.toString()">
+                ,level_second_name
+            </if>
+            order by ual.level_second_id ASC
+        </if>
+        <if test="group != null  and group == '1'.toString()">
+            order by ual.auto_id desc
+        </if>
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+            limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询2级行为总停留时间 -->
+    <select id="countLv2TimeStay" resultType="Long">
+        SELECT sum(ual.time_stay) FROM c_upload_access_log ual
+        <if test="actionId != null and actionId == '4'.toString()">
+            LEFT JOIN c_upload_second_action clv2 ON clv2.c_upload_second_action_id = ual.level_second_id
+        </if>
+        <if test="actionId != null and (actionId == '21'.toString() or actionId == '22'.toString())">
+            LEFT JOIN c_detail_text cdt ON cdt.c_roll_main_id = ual.level_second_id
+            RIGHT JOIN c_roll_main crm ON ual.level_second_id = crm.c_roll_main_id
+        </if>
+        <if test="actionId != null and actionId == '31'.toString()">
+            LEFT JOIN c_video_business cvb ON cvb.c_video_id = ual.level_second_id
+            --          只有有推送记录的广告点击才是有效点击
+            RIGHT JOIN c_video_publish  cvp ON cvp.c_business_id = cvb.c_business_id
+            AND cvp.ad_org_id = ual.ad_org_id
+            AND (ual.time_poit BETWEEN cvp.time_start AND cvp.time_end)
+        </if>
+        WHERE ual.active = 1
+        AND ual.level_second_id IS NOT NULL
+        <if test="actionId != null and actionId == '21'.toString()">
+            AND crm.type = 1
+        </if>
+        <if test="actionId != null and actionId == '22'.toString()">
+            AND crm.type = 0
+        </if>
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="actionId != null and (actionId == '4'.toString() or actionId == '21'.toString() or actionId == '31'.toString() or actionId == '36'.toString()) ">
+            AND ual.action_id = #{actionId}
+        </if>
+        <if test="actionId != null and actionId == '22'.toString() ">
+            AND ual.action_id = 21
+        </if>
+    </select>
+
+    <!-- 查询2级行为总数,可用于查询总点击数(=总条数) -->
+    <select id="countLv2Click" resultType="Long">
+        SELECT COUNT(1) FROM c_upload_access_log ual
+        <if test="actionId != null and actionId == '4'.toString()">
+            LEFT JOIN c_upload_second_action clv2 ON clv2.c_upload_second_action_id = ual.level_second_id
+        </if>
+        <if test="actionId != null and (actionId == '21'.toString() or actionId == '22'.toString())">
+            LEFT JOIN c_detail_text cdt ON cdt.c_roll_main_id = ual.level_second_id
+            RIGHT JOIN c_roll_main crm ON ual.level_second_id = crm.c_roll_main_id
+        </if>
+        <if test="actionId != null and actionId == '31'.toString()">
+            LEFT JOIN c_video_business cvb ON cvb.c_video_id = ual.level_second_id
+            --          只有有推送记录的广告点击才是有效点击
+            RIGHT JOIN c_video_publish  cvp ON cvp.c_business_id = cvb.c_business_id
+            AND cvp.ad_org_id = ual.ad_org_id
+            AND (ual.time_poit BETWEEN cvp.time_start AND cvp.time_end)
+        </if>
+        WHERE ual.active = 1
+        AND ual.level_second_id IS NOT NULL
+        <if test="actionId != null and actionId == '21'.toString()">
+            AND crm.type = 1
+        </if>
+        <if test="actionId != null and actionId == '22'.toString()">
+            AND crm.type = 0
+        </if>
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="actionId != null and (actionId == '4'.toString() or actionId == '21'.toString() or actionId == '31'.toString() or actionId == '36'.toString()) ">
+            AND ual.action_id = #{actionId}
+        </if>
+        <if test="actionId != null and actionId == '22'.toString() ">
+            AND ual.action_id = 21
+        </if>
+    </select>
+
+    <!-- 查询1级行为总停留时间 -->
+    <select id="countTimeStay" resultType="Long">
+        SELECT sum(ual.time_stay) FROM c_upload_access_log ual
+        WHERE ual.active = 1
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="actionId != null">
+            AND ual.action_id = #{actionId}
+        </if>
+        <if test="inList != null">
+            AND ual.action_id IN
+            <foreach collection="inList" item="inListId" index="index"
+                     open="(" close=")" separator=",">
+                #{inListId}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 查询1级行为总数,可用于查询总点击数(=总条数) -->
+    <select id="countClick" resultType="Long">
+        SELECT COUNT(1) FROM c_upload_access_log ual
+        WHERE ual.active = 1
+        <if test="begin != null and end != null">
+            AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        <if test="actionId != null">
+            AND ual.action_id = #{actionId}
+        </if>
+        <if test="inList != null">
+            AND ual.action_id IN
+            <foreach collection="inList" item="inListId" index="index"
+                     open="(" close=")" separator=",">
+                #{inListId}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 分页/不分页查询 -->
+    <select id="list_uploadAccessLogList" resultMap="uploadAccessLogResult">
+        SELECT *
+        FROM c_upload_access_log ual
+        WHERE ual.active = 1
+        <if test="begin != null and end != null">
+          AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+        order by ual.time_poit,ual.auto_id desc
+        <if test="iDisplayAll != null and iDisplayAll == '0'.toString()">
+          limit #{rowNum} offset #{skipNum};
+        </if>
+    </select>
+
+    <!-- 查询总数,可用于查询总点击数(=总条数) -->
+    <select id="count_uploadAccessLogList" resultType="int">
+        SELECT COUNT(1) FROM c_upload_access_log ual
+        WHERE ual.active = 1
+        <if test="begin != null and end != null">
+          AND (ual.time_poit BETWEEN #{begin} AND #{end})
+        </if>
+        <if test="clientId != null">
+            AND ual.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            AND ual.r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="uploadAccessLogResult">
+        select ual.* from c_upload_access_log ual where ual.active = 1
+        <if test="uploadAccessId != null">
+            AND ual.c_upload_access_id = #{uploadAccessId}
+        </if>
+    </select>
+
+    <!-- 查询list -->
+    <select id="getEntities" resultMap="uploadAccessLogResult">
+        select
+        ual.*
+        from
+        c_upload_access_log ual
+        where ual.active = 1
+        <if test="orgId != null">
+            AND ual.ad_org_id = #{orgId}
+        </if>
+        <if test="nowDate != null">
+            AND ual.time_end &gt;= #{nowDate}
+        </if>
+    </select>
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into c_upload_access_log(
+        c_upload_access_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        action_id,
+        click_num,
+        time_poit,
+        time_stay,
+        discription,
+        level_second_id,
+        created_by,
+        created
+        ) values (
+        #{uploadAccessId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{actionId},
+        #{clickNum},
+        #{timePoit},
+        #{timeStay},
+        #{discription},
+        #{levelSecondId},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update  c_upload_access_log
+        set
+        updated_by = #{updatedBy},
+        updated = #{updated}
+        where
+        c_upload_access_id = #{uploadAccessId}
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="removeEntity">
+        delete from c_upload_access_log
+        where c_upload_access_id = #{uploadAccessId}
+    </delete>
+    
+</mapper>

@@ -1,0 +1,172 @@
+<script type="text/ng-template" id="pushVideo">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal">
+            <h3>发布视频</h3>
+            <div class="col-xs-12 form_input" style="height: 400px; overflow-y: scroll;overflow-x: hidden;">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">视频标题</label>
+                    <div class="col-sm-9">
+                        <span class="text">{{vm.view.description}}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上架时间</label>
+                    <div class="col-sm-9" >
+                        <div datepicker date-format="yyyy-MM-dd" style="width: 40%">
+                            <input ng-model="vm.startTime" type="text" class="angular-datepicker-input" placeholder="上架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>下架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd" style="width: 40%">
+                            <input ng-model="vm.endTime" type="text" class="angular-datepicker-input" placeholder="下架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>日频次</label>
+                    <div class="col-sm-9">
+                        <select ng-model="vm.view.playFreq" ng-init="vm.view.playFreq?vm.view.playFreq:vm.view.playFreq = 1">
+                            <option value="1" >120次</option>
+                            <option value="2" >240次</option>
+                            <option value="100">全天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right">视频</label>
+                    <div class="col-sm-9">
+                        <ul class="video_list">
+                            <li class="last">
+                                <c-video ng-show="vm.view"></c-video>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-click="vm.save()"><span>发布视频</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+<script type="text/ng-template" id="addVideo">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal" id="type_f" name="type_f" novalidate="">
+            <h3>{{vm.title}}视频</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>视频标题</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.description" placeholder="输入标题" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>视频类型</label>
+                    <div class="col-sm-9">
+                        <select ng-model="vm.view.kind" ng-init="vm.view.kind?vm.view.kind:vm.view.kind = 1">
+                            <option value="1">待机视频</option>
+                            <!--<option value="2">点播视频</option>-->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上传视频<br /><small>推荐尺寸:<br />1280px * 800px (5:3)<br />视频大小:50M以内</small></label>
+                    <div class="col-sm-9">
+                        <ul class="video_list">
+                            <li class="last" data-type="video"  ng-qiniu="vm.video(progress,res,qn)" onclick="this.value = null">
+                                <img ng-show="progress" src="skin/images/loading.jpg" />
+                                <c-video ng-show="vm.pic"></c-video>
+                                <var style="width: {{progress || 0}}%;"></var>
+                                <a ng-hide="progress || vm.pic">上传视频</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="vm.isStore">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>上架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.startTime}}">
+                            <input ng-model="vm.startTime" type="text" class="angular-datepicker-input" placeholder="上架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="vm.isStore">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>下架时间</label>
+                    <div class="col-sm-9">
+                        <div datepicker date-format="yyyy-MM-dd" date-set="{{vm.endTime}}">
+                            <input ng-model="vm.endTime" type="text" class="angular-datepicker-input" placeholder="下架时间" />
+                        </div>
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-disabled="type_f.$invalid" ng-click="vm.save()"><span>{{vm.title}}</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+
+<div class="row" ng-if="(C.userInfo.roleType != 'SUPERADMIN' || !vm.isStore) && C.userInfo.roleType != 'BRANDUSER'"  ><div class="col-xs-12"><a class="btn btn-sm btn-danger" ng-click="vm.add()"><i class="fa fa-plus bigger-120"></i>添加视频</a></div></div>
+<div class="space-6"></div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th class="center">视频ID</th>
+                        <th class="center">视频文件ID</th>
+                        <th>视频图</th>
+                        <th>视频名称</th>
+                        <th>视频类型</th>
+                        <th>创建时间</th>
+                        <th ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">上架时间</th>
+                        <th ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">下架时间</th>
+                        <th>状态</th>
+                        <th class="center" ng-if="(C.userInfo.roleType != 'SUPERADMIN' || !vm.isStore) && C.userInfo.roleType != 'BRANDUSER'">操作</th>
+                        <th class="center" ng-if="!vm.isStore">推送</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="l in vm.list">
+                        <td class="center">{{::l.businessId}}</td>
+                        <td class="center">{{::l.videoId}}</td>
+                        <td><img ng-src="{{::l.qiniuPath | myeeUrlVideo:true}}" src="skin/images/video_bg.jpg"/> </td>
+                        <td class="t-left">{{::l.description}}</td>
+                        <td ng-if="l.kind == 1">待机视频</td>
+                        <td ng-if="l.kind == 2">点播视频</td>
+                        <td>{{::l.created | dateFormat}}</td>
+                        <td ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">{{::l.timeStart | dateFormat}}</td>
+                        <td ng-if="C.userInfo.roleType != 'SUPERADMIN' || vm.isStore">{{::l.timeEnd | dateFormat}}</td>
+                        <td><i class="green fa fa-check"></i></td>
+                        <td class="center" ng-if="(C.userInfo.roleType != 'SUPERADMIN' || !vm.isStore) && C.userInfo.roleType != 'BRANDUSER'">
+                            <i ng-click="vm.add(true,$index)" class="green fa fa-pencil bigger-130"></i>
+                            <i ng-if="vm.isStore" ng-click="vm.remove($index)" class="red fa fa-trash-o bigger-130"></i>
+                        </td>
+                        <td class="center" ng-if="!vm.isStore">
+                            <span class="label label-success push_ico" ng-click="vm.push($index)">推送<i ng-show="l.push" class="red fa fa-flag"></i></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

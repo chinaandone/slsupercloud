@@ -1,0 +1,61 @@
+{
+    "code": 0,
+    "message": null,
+    "deviceId":"xxxxx",
+    "deviceName":"Cooky",
+    "data": [
+        {
+            "name": "开/关机状态",
+            "action": "querySwitchStatus"
+        },
+        {
+            "name": "器件自检状态",
+            "action": "querySelfCheck"
+        },
+        {
+            "name": "网络信号质量",
+            "action": "queryNetworkSigna"
+        },
+        {
+            "name": "433无线网络状态",
+            "action": "queryWirelessNetwork"
+        },
+        {
+            "name": "翻台器/手环配置",
+            "action": "queryBraceletCfg"
+        },
+        {
+            "name": "RAM使用情况",
+            "action": "queryRAMObj"
+        },
+        {
+            "name": "ROM使用情况",
+            "action": "queryROMObj"
+        },
+        {
+            "name": "当前音量",
+            "action": "queryVolume"
+        },
+        {
+            "name": "Camera查看现场",
+            "action": "queryCameraUrl"
+        },
+        {
+            "name": "避障设置",
+            "action": "queryObstacleCfg"
+        },
+        {
+            "name": "接近感应设置",
+            "action": "queryInductionCfg"
+        },
+        {
+            "name": "电池状态分析报告",
+            "action": "queryBatteryCfg"
+        },
+        {
+            "name": "生成餐厅地图",
+            "action": "queryMapUrl"
+        }
+    ],
+    "success": true
+}

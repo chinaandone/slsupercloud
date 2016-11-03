@@ -1,0 +1,68 @@
+<script type="text/ng-template" id="addBrand">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal" id="brand_f" name="brand_f" novalidate="">
+            <h3>{{vm.title}}品牌</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>品牌名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" ng-model="vm.view.name" placeholder="品牌名称" maxlength="30" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>品牌描述</label>
+                    <div class="col-sm-9">
+                        <textarea ng-model="vm.view.description" columns="1" placeholder="品牌描述" rows="7" required></textarea>
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-disabled="brand_f.$invalid" ng-click="vm.save()"><span>{{vm.title}}</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<div class="row"><div class="col-xs-12"><a class="btn btn-sm btn-danger" ng-click="vm.add('add')"><i class="fa fa-plus bigger-120"></i>添加品牌</a></div></div>
+<div class="space-6"></div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th class="center">品牌ID</th>
+                        <th>品牌</th>
+                        <th>描述</th>
+                        <th>创建时间</th>
+                        <th class="center">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="l in vm.list">
+                        <td class="center">{{::l.clientId}}</td>
+                        <td class="t-left">{{::l.name}}</td>
+                        <td>{{::l.description}}</td>
+                        <td>{{::l.created | dateFormat}}</td>
+                        <td class="center">
+                            <i ng-click="vm.add('edit',$index)" class="green fa fa-pencil bigger-130"></i>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
