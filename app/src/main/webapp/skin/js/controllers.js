@@ -20,6 +20,7 @@ define(function (require) {
         .controller('libraryAdvert',libraryAdvert)
         .controller('libraryMaterial',libraryMaterial)
         .controller('tablePhone',tablePhone)
+        .controller('tableWatch',tableWatch)
         .controller('marketManage',marketManage)
         .controller('manageBrand',manageBrand)
         .controller('manageStore',manageStore)
@@ -958,6 +959,87 @@ define(function (require) {
                         if(res == '$closeButton') {
                             $scope.$apply(function() {
                                 vm.list[index].phone = phone;
+                            });
+                        }
+                    }
+                });
+            }
+        };
+
+        //
+        $scope.pageCount = $filter('pageNum')(vm.count);//定义页数
+        $scope.onPageChange = function (){//获取分页数据
+            vm.thisdata === false ? vm.get() : vm.thisdata = false;
+        };
+    }
+
+    //手环设置
+    function tableWatch($scope,base,list,baseData,info,ngDialog,$filter){
+        var vm = $scope.vm = {
+            list: list.aaData,
+            view: '',
+            count:list.itotalRecords,
+            get:function(){
+                baseData.query({iDisplayStart:($scope.currentPage - 1)*base.page_length},'tableWatch').then(function(data){
+                    vm.list = data.aaData;
+                });
+            },
+            syncs:function(index){
+                var v = vm.list[index];
+                baseData.save({tableWatchId:v.tableWatchId || '',tableId:v.tableId,watchadd:v.watchadd|| '',dongleadd:v.dongleadd|| '',mac_address:v.mac_address || ''},'tableWatch').then(function(req){
+                    req.success?info.error('同步成功！'):info.error(req.message);
+                    vm.get();
+                });
+            },
+            edit:function(index){
+                var phone = vm.list[index].phone;
+                var watchadd = vm.list[index].watchadd;
+                var dongleadd = vm.list[index].dongleadd;
+                var mac_address = vm.list[index].mac_address;
+                ngDialog.open({
+                    template: 'editTableWath',
+                    controller: ['$scope','view', function($scope,view) {
+                        var nm = $scope.nm = {
+                            view:view,
+                            save:function(){
+                                var watchadd = this.view.watchadd;
+                                var dongleadd = this.view.dongleadd;
+                                var mac_address = this.view.mac_address;
+                                var validResult = true;
+                                // angular.forEach(phones,function(data,index,array){
+                                //     //data等价于array[index]
+                                //     if(!(/^(13[0-9]|14[0|1|2|3|4|5|6|7]|15[0-9]|17[0-9]|18[0-9])\d{8}$/.test(data)) || data.length !== 11){
+                                //         validResult = false;
+                                //         return false;
+                                //     }
+                                // });
+                                if(validResult){
+                                    baseData.update({tableWatchId:this.view.tableWatchId || '',watchadd:this.view.watchadd||'',dongleadd:this.view.dongleadd||'',mac_address:this.view.mac_address},'tableWatch').then(function(req){
+                                        if(req.success){
+                                            info.error(req.message);
+                                            ngDialog.closeAll();
+                                        }else{
+                                            info.error(req.message);
+                                        }
+                                    });
+                                }else{
+                                    info.error('请输入正确的手环地址范围和DongleMac地址！');
+                                }
+                            }
+                        };
+                    }],
+                    resolve:{
+                        view:function(){
+                            return vm.list[index];
+                        }
+                    },
+                    preCloseCallback: function(res) {
+                        if(res == '$closeButton') {
+                            $scope.$apply(function() {
+                                vm.list[index].phone = phone;
+                                vm.list[index].watchadd = watchadd;
+                                vm.list[index].dongleadd = dongleadd;
+                                vm.list[index].mac_address = mac_address;
                             });
                         }
                     }

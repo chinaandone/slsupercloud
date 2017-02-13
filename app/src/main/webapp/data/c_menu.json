@@ -145,6 +145,12 @@
           "active":"active"
         },
         {
+          "name":"手环设置",
+          "class":"jf.watch",
+          "url":"jf.watch()",
+          "active":"active"
+        },
+        {
           "name":"推广管理",
           "class":"jf.marketManage",
           "url":"jf.marketManage()",

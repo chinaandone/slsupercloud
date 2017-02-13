@@ -1,7 +1,7 @@
 package com.clever.common.service;
 
-import com.clever.common.domain.Pictrue;
-import com.clever.common.domain.Table;
+import com.clever.common.domain.TablePhone;
+import com.clever.common.domain.TableWatch;
 import com.clever.common.service.base.IBaseService;
 import com.clever.common.view.PaginationView;
 
@@ -10,13 +10,13 @@ import java.util.List;
 
 /**
  * Info: clever
- * User: enva.liang@clever-m.com
- * Date: 2016-01-25
+ * User: chay.ni@clever-m.com
+ * Date: 2016-03-17
  * Time: 14:29
  * Version: 1.0
  * History: <p>如果有修改过程，请记录</P>
  */
-public interface TableManageService extends IBaseService {
+public interface TableWatchManageService extends IBaseService {
     void listInPage(PaginationView paginationView);
 
     int count(PaginationView paginationView);
@@ -24,11 +24,8 @@ public interface TableManageService extends IBaseService {
     @SuppressWarnings("rawtypes")
     Collection list(PaginationView paginationView);
 
-    void addEntityBySeq(Table p);
+    void addEntityBySeq(TableWatch p);
 
-    public List<Table> getEntities(Table t);
-
-    //add by Randy for device online info Schedule
-    void updateRunFlag();
+    List<TableWatch> getEntities(TableWatch p);
 
 }

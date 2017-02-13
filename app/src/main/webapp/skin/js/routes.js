@@ -235,6 +235,17 @@ define(function (require){
                     }
                 }
             })
+            .state('jf.watch', {
+                url: '/watch',
+                templateUrl: 'view/tableWatch.html',
+                controller: 'tableWatch',
+                data: { pageTitle: '手环设置' },
+                resolve:{
+                    list:function(baseData){
+                        return baseData.query({},'tableWatch');
+                    }
+                }
+            })
             .state('jf.brand', {
                 url: '/brand',
                 templateUrl: 'view/manageBrand.html',

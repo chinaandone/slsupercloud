@@ -1,17 +1,13 @@
 package com.clever.common.service.impl;
 
 import com.clever.common.domain.AdSequence;
-import com.clever.common.domain.Pictrue;
-import com.clever.common.domain.Table;
+import com.clever.common.domain.TableWatch;
 import com.clever.common.repository.AdSequenceManageDao;
-import com.clever.common.repository.PictrueManageDao;
-import com.clever.common.repository.TableManageDao;
+import com.clever.common.repository.TableWatchManageDao;
 import com.clever.common.repository.base.IBaseMapperDao;
-import com.clever.common.service.PictrueManageService;
-import com.clever.common.service.TableManageService;
+import com.clever.common.service.TableWatchManageService;
 import com.clever.common.service.base.BaseService;
 import com.clever.common.view.PaginationView;
-import javafx.scene.control.Tab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +23,19 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Info: clever
  * User: enva.liang@clever-m.com
- * Date: 2016-01-25
+ * Date: 2016-03-17
  * Time: 15:12
  * Version: 1.0
  * History: <p>如果有修改过程，请记录</P>
  */
-@Service("TableManageService")
+@Service("TableWatchManageService")
 @Transactional
-public class TableManageServiceImpl extends BaseService implements TableManageService {
+public class TableWatchManageServiceImpl extends BaseService implements TableWatchManageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TableManageServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(TableWatchManageServiceImpl.class);
 
     @Autowired
-    private TableManageDao tableManageDao;
+    private TableWatchManageDao tableWatchManageDao;
 
     @Autowired
     private AdSequenceManageDao adSequenceManageDao;
@@ -49,38 +45,38 @@ public class TableManageServiceImpl extends BaseService implements TableManageSe
 
     @Override
     protected IBaseMapperDao getMapperDao() {
-        return tableManageDao;
+        return tableWatchManageDao;
     }
 
 	@SuppressWarnings("rawtypes")
     @Override
     public void listInPage(PaginationView paginationView) {
-        int count = tableManageDao.count(paginationView);
-        Collection list = tableManageDao.list(paginationView);
+        int count = tableWatchManageDao.count(paginationView);
+        Collection list = tableWatchManageDao.list(paginationView);
         paginationView.setAaData(list);
         paginationView.setITotalDisplayRecords(count);
         paginationView.setITotalRecords(count);
     }
 
     public int count(PaginationView paginationView) {
-        return tableManageDao.count(paginationView);
+        return tableWatchManageDao.count(paginationView);
     }
 
     @SuppressWarnings("rawtypes")
     public Collection list(PaginationView paginationView) {
-        return tableManageDao.list(paginationView);
+        return tableWatchManageDao.list(paginationView);
     }
 
-    public void addEntityBySeq(Table t){
+    public void addEntityBySeq(TableWatch t){
         lock.lock();
         try {
-            AdSequence ad = (AdSequence)adSequenceManageDao.getEntity(new AdSequence("R_Table"));
+            AdSequence ad = (AdSequence)adSequenceManageDao.getEntity(new AdSequence("R_Info_Watch"));
             AtomicLong count = new AtomicLong(1);
             seqNext = (ad.getCurrentnextsys() + count.getAndIncrement());
             ad.setCurrentnextsys(seqNext);
             adSequenceManageDao.updateEntity(ad);
-            t.setTableId(seqNext);
-            tableManageDao.addEntity(t);
+            t.setTableWatchId(seqNext);
+            tableWatchManageDao.addEntity(t);
         } catch (Exception e) {
             logger.error(e.toString());
             throw new RuntimeException(e);
@@ -89,12 +85,10 @@ public class TableManageServiceImpl extends BaseService implements TableManageSe
         }
     }
 
-    public List<Table> getEntities(Table t){
-        return tableManageDao.getEntities(t);
+
+    public List<TableWatch> getEntities(TableWatch p) {
+        return tableWatchManageDao.getEntities(p);
     }
 
-    @Override
-    public void updateRunFlag() {
-        tableManageDao.updateRunFlag();
-    }
+
 }

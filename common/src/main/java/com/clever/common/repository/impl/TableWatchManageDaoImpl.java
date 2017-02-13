@@ -1,9 +1,9 @@
 package com.clever.common.repository.impl;
 
-import com.clever.common.domain.Pictrue;
-import com.clever.common.domain.Table;
-import com.clever.common.repository.PictrueManageDao;
-import com.clever.common.repository.TableManageDao;
+import com.clever.common.domain.TablePhone;
+import com.clever.common.domain.TableWatch;
+import com.clever.common.repository.TablePhoneManageDao;
+import com.clever.common.repository.TableWatchManageDao;
 import com.clever.common.repository.base.BaseMybatisDAO;
 import com.clever.common.view.PaginationView;
 import org.springframework.stereotype.Repository;
@@ -22,9 +22,9 @@ import java.util.Map;
  * History: <p>如果有修改过程，请记录</P>
  */
 @Repository
-public class TableManageDaoImpl extends BaseMybatisDAO<Table, Long>  implements TableManageDao {
+public class TableWatchManageDaoImpl extends BaseMybatisDAO<TableWatch, Long>  implements TableWatchManageDao {
 
-    private static final String sql_mapper = "com.clever.common.repository.TableManageDao";
+    private static final String sql_mapper = "com.clever.common.repository.TableWatchManageDao";
 
     @Override
     public int count(PaginationView paginationView) {
@@ -38,10 +38,11 @@ public class TableManageDaoImpl extends BaseMybatisDAO<Table, Long>  implements 
     }
 
     @Override
-    public List<Table> getEntities(Table r) {
+    public List<TableWatch> getEntities(TableWatch r) {
         Map<String,Object> map = new HashMap();
         map.put("orgId",r.getOrgId());
         map.put("clientId",r.getClientId());
+        map.put("tableId",r.getTableId());
         return this.getMasterSqlSessionTemplate().selectList(this.getMapperKey(sql_mapper, "getEntities"), map);
     }
 
@@ -50,8 +51,4 @@ public class TableManageDaoImpl extends BaseMybatisDAO<Table, Long>  implements 
         return sql_mapper;
     }
 
-    @Override
-    public void updateRunFlag() {
-        this.getMasterSqlSessionTemplate().update(this.getMapperKey(sql_mapper,"updateRunFlag"));
-    }
 }

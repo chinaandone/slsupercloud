@@ -30,6 +30,18 @@ public class Table extends BaseBean {
 
 	private String erpId;//erpId，小超人用
 
+	private int runflag; //for设备心跳
+	private String versioncode="";//
+	private String versionname="";//
+
+	public int getRunflag() {
+		return runflag;
+	}
+
+	public void setRunflag(int runflag) {
+		this.runflag = runflag;
+	}
+
 	public Table(){
 
 	}
@@ -147,5 +159,21 @@ public class Table extends BaseBean {
 
 	public void setErpId(String erpId) {
 		this.erpId = erpId;
+	}
+
+	public String getVersioncode() {
+		return versioncode;
+	}
+
+	public void setVersioncode(String versioncode) {
+		this.versioncode = versioncode;
+	}
+
+	public String getVersionname() {
+		return versionname;
+	}
+
+	public void setVersionname(String versionname) {
+		this.versionname = versionname;
 	}
 }

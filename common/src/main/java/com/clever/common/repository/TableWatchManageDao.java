@@ -1,7 +1,6 @@
 package com.clever.common.repository;
 
-import com.clever.common.domain.Pictrue;
-import com.clever.common.domain.Table;
+import com.clever.common.domain.TableWatch;
 import com.clever.common.repository.base.IBaseMapperDao;
 import com.clever.common.view.PaginationView;
 
@@ -16,15 +15,11 @@ import java.util.List;
  * Version: 1.0
  * History: <p>如果有修改过程，请记录</P>
  */
-public interface TableManageDao extends IBaseMapperDao<Table, Long>  {
+public interface TableWatchManageDao extends IBaseMapperDao<TableWatch, Long>  {
 
     int count(PaginationView paginationView);
 
     Collection list(PaginationView paginationView);
 
-    public List<Table> getEntities(Table t);
-
-    //add by Randy for device online
-
-    void updateRunFlag();
+    List<TableWatch> getEntities(TableWatch r);
 }

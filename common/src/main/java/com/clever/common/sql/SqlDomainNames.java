@@ -39,6 +39,10 @@ public class SqlDomainNames {
 
     public static final String TABLEPHONE_LIST = "tablePhoneList";
 
+    //add by zwd 20161110 for tablewatch begin
+    public static final String TABLEWATCH_LIST = "tableWatchList" ;
+    //add by zwd 20161110 for tablewatch end
+
     public static final String TABLETYPE_LIST = "tableTypeList";
 
     public static final String TABLEZONE_LIST = "tableZoneList";

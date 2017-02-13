@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clever.common.repository.TableWatchManageDao">
+
+    <resultMap id="tableWatchResult" type="TableWatch">
+        <result property="tableWatchId" column="r_watch_id"/>
+        <result property="tableId" column="r_table_id"/>
+        <result property="clientId" column="ad_client_id"/>
+        <result property="clientName" column="client_name"/>
+        <result property="orgId" column="ad_org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="tableName" column="tablename"/>
+        <result property="displayTableName" column="disp_tablename"/>
+        <result property="dongleadd" column="dongleadd"/>
+        <result property="watchadd" column="watchadd"/>
+        <result property="watchadd1" column="watchadd1"/>
+        <result property="watchadd2" column="watchadd2"/>
+        <result property="active" column="active"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="created" column="created"/>
+        <result property="mac_address" column="mac_adress"/>
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="list_tableWatchList" resultMap="tableWatchResult">
+        SELECT t.r_table_id,t.ad_client_id,t.ad_org_id,t.name AS tablename,info.active,info.created_by,info.created,
+        o.name AS org_name,client.name AS client_name,info.name AS disp_tablename,info.r_watch_id,info.dongleadd,info.watchadd,info.watchadd1,info.watchadd2,
+        info.mac_adress
+        FROM r_table t
+        LEFT JOIN r_info_watch info ON t.r_table_id = info.r_table_id
+            <if test="clientId != null">
+                and info.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and info.ad_org_id = #{orgId}
+            </if>
+        LEFT JOIN ad_org o ON t.ad_org_id = o.ad_org_id
+            <if test="clientId != null">
+                and o.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and o.ad_org_id = #{orgId}
+            </if>
+        LEFT JOIN ad_client client ON t.ad_client_id = client.ad_client_id
+            <if test="clientId != null">
+                and client.ad_client_id = #{clientId}
+            </if>
+        where t.active = 1
+        <if test="clientId != null">
+            and t.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and t.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            and t.r_table_id = #{tableId}
+        </if>
+        order by t.ad_org_id, t.r_table_id DESC limit #{rowNum} offset #{skipNum};
+    </select>
+
+    <!-- 查询总数 -->
+    <select id="count_tableWatchList" resultType="int">
+        SELECT COUNT(1)
+        FROM r_table t
+        LEFT JOIN r_info_watch info ON t.r_table_id = info.r_table_id
+            <if test="clientId != null">
+                and info.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and info.ad_org_id = #{orgId}
+            </if>
+        LEFT JOIN ad_org o ON t.ad_org_id = o.ad_org_id
+            <if test="clientId != null">
+                and o.ad_client_id = #{clientId}
+            </if>
+            <if test="orgId != null">
+                and o.ad_org_id = #{orgId}
+            </if>
+        LEFT JOIN ad_client client ON t.ad_client_id = client.ad_client_id
+            <if test="clientId != null">
+                and client.ad_client_id = #{clientId}
+            </if>
+        where t.active = 1
+        <if test="clientId != null">
+            and t.ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and t.ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            and t.r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询单个 -->
+    <select id="getEntity" resultMap="tableWatchResult">
+        SELECT *,name as tablename
+        FROM r_info_watch
+        where active = 1
+        <if test="tableWatchId != null">
+          AND r_watch_id = #{tableWatchId}
+        </if>
+        <if test="tableId != null">
+          AND r_table_id = #{tableId}
+        </if>
+    </select>
+
+    <!-- 查询关联某桌号的watchaddlist -->
+    <select id="getEntities" resultMap="tableWatchResult">
+        SELECT *,name as tablename
+        FROM r_info_watch
+        where 1 = 1
+        <if test="clientId != null">
+            and ad_client_id = #{clientId}
+        </if>
+        <if test="orgId != null">
+            and ad_org_id = #{orgId}
+        </if>
+        <if test="tableId != null">
+            and r_table_id = #{tableId}
+        </if>
+        order by ad_org_id desc,r_table_id DESC
+    </select>
+
+
+    <!-- 新增-->
+    <insert id="addEntity">
+        insert into r_info_watch(
+        r_watch_id,
+        ad_client_id,
+        ad_org_id,
+        r_table_id,
+        dongleadd,
+        watchadd,
+        name,
+        created_by,
+        created
+        ) values (
+        #{tableWatchId},
+        #{clientId},
+        #{orgId},
+        #{tableId},
+        #{dongleadd},
+        #{watchadd},
+        #{displayTableName},
+        #{createdBy},
+        #{created}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateEntity">
+        update r_info_watch
+        set
+        <if test="displayTableName != null">
+            name = #{displayTableName},
+        </if>
+        <if test="dongleadd != null">
+            dongleadd = #{dongleadd},
+        </if>
+        <if test="watchadd != null">
+            watchadd = #{watchadd},
+        </if>
+        <if test="mac_address != null">
+            mac_adress = #{mac_address},
+        </if>
+        <if test="updatedBy != null">
+            updated_by = #{updatedBy},
+        </if>
+        updated = #{updated}
+        where
+        r_watch_id = #{tableWatchId}
+        AND active = 1
+    </update>
+
+    <!-- 删除 -->
+    <delete id="removeEntity">
+        delete from r_info_watch
+        where r_watch_id = #{tableWatchId}
+    </delete>
+</mapper>

@@ -1,0 +1,81 @@
+<script type="text/ng-template" id="editTableWath">
+    <div class="ngdialog-message">
+        <form role="form" class="form-horizontal">
+            <h3>修改桌子手环信息</h3>
+            <div class="col-xs-12 form_input">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>手环433地址</label>
+                    <div class="col-sm-9">
+                        <input ng-model="nm.view.watchadd" placeholder="输入手环433地址160-254之间的整数" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>Dongle433地址</label>
+                    <div class="col-sm-9">
+                        <input ng-model="nm.view.dongleadd" placeholder="输入Dongle433地址16-160之间的整数" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right"><i>*</i>Dongle蓝牙MAC</label>
+                    <div class="col-sm-9">
+                        <input ng-model="nm.view.mac_address" placeholder="AA:BB:CC:DD:EE:FF" />
+                    </div>
+                </div>
+                <div class="d-buttons">
+                    <button class="btn btn-danger" ng-click="nm.save()"><span>修 改</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</script>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <div class="dataTables_wrapper">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th class="center">餐桌ID</th>
+                        <th>商户名</th>
+                        <th>餐厅名</th>
+                        <th>桌名</th>
+                        <th>显示桌名</th>
+                        <th>手环地址</th>
+                        <th>Dongle地址</th>
+                        <th>蓝牙mac</th>
+                        <th class="center">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="l in vm.list">
+                        <td class="center">{{::l.tableId}}</td>
+                        <td class="t-left">{{::l.clientName}}</td>
+                        <td>{{::l.orgName}}</td>
+                        <td>{{::l.tableName}}</td>
+                        <td class="LightBLue">{{::l.displayTableName}}</td>
+                        <td>{{l.watchadd}}</td>
+                        <td>{{l.dongleadd}}</td>
+                        <td>{{l.mac_address}}</td>
+                        <td class="center">
+                            <span ng-if="!(l.active == 0 && l.tableWatchId != null)" class="label label-success" ng-click="vm.syncs($index)">同步桌名</span>
+                            <span ng-if="!(l.active == 0 && l.tableWatchId != null)" class="label label-success" ng-click="vm.edit($index)">修改手环信息</span>
+                            <span ng-if="(l.active == 0 && l.tableWatchId != null)">系统保留</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="row alert-info">
+                    <div class="col-sm-6">
+                        <div class="dataTables_info">{{vm.count}} 条记录</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap">
+                            <pager page-count="pageCount" current-page="currentPage" on-page-change="onPageChange()"></pager>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

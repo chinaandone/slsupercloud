@@ -157,9 +157,23 @@
         <if test="updatedBy != null">
             updated_by = #{updatedBy},
         </if>
-        updated = #{updated}
+        <if test="updated !=null">
+        updated = #{updated},
+        </if>
+        <if test="runflag !=null">
+            runflag = #{runflag},
+        </if>
+        <if test="versioncode !=null">
+            versioncode = #{versioncode},
+        </if>
+        <if test="versionname !=null">
+            versionname = #{versionname}
+        </if>
         where
         r_table_id = #{tableId}
+        <if test="orgId !=null">
+           and  ad_org_id = #{orgId}
+        </if>
     </update>
 
     <!-- 删除-->
@@ -167,5 +181,9 @@
         delete from r_table
         where r_table_id = #{tableId}
     </delete-->
-
+    <update id="updateRunFlag">
+        UPDATE r_table
+        SET runflag =0
+        WHERE timestampdiff(MINUTE,updated,now()) > 15
+    </update>
 </mapper>

@@ -30,6 +30,12 @@
         </listener-class>
     </listener>
 
+    <listener>
+        <listener-class>
+            com.clever.web.util.SchduleListener
+        </listener-class>
+    </listener>
+
     <filter>
         <filter-name>SetCharacterEncoding</filter-name>
         <filter-class>
